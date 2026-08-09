@@ -58,6 +58,8 @@ pnpm deploy:selfhost --yes
 
 This provisions the D1 database, KV namespaces, and R2 bucket, applies the database migrations, deploys the Worker, and creates the Cloudflare Access application protecting it (allowing exactly `ACCESS_ALLOWED_EMAILS`). If the account has no Zero Trust team yet, one is created for you, named after your workers.dev subdomain.
 
+To deploy on a custom hostname already managed by the same Cloudflare account, set `SELFHOST_DOMAIN` to the hostname only (for example, `openseo.example.com`, without `https://`). The deploy binds the hostname to the Worker and protects that hostname with the same Cloudflare Access application.
+
 To manage the Access application yourself instead, set `TEAM_DOMAIN` (`https://your-team.cloudflareaccess.com`) and `POLICY_AUD` (the application's audience tag) in `.env.selfhost` — the deploy then provisions no Access resources.
 
 ## 5) Validate setup

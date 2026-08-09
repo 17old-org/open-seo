@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { user } from "@/db/schema";
-import { ensureDelegatedOrganizationForUser } from "@/server/auth/delegated-organization";
+import { ensureSharedDelegatedOrganization } from "@/server/auth/delegated-organization";
 import { eq } from "drizzle-orm";
 import type { EnsuredUserContext } from "./types";
 
@@ -57,10 +57,7 @@ export async function resolveDelegatedContext(
   userEmail: string,
 ): Promise<EnsuredUserContext> {
   const ensuredEmail = await ensureUserRecord(userId, userEmail);
-  const organizationId = await ensureDelegatedOrganizationForUser(
-    userId,
-    ensuredEmail,
-  );
+  const organizationId = await ensureSharedDelegatedOrganization();
 
   return {
     userId,

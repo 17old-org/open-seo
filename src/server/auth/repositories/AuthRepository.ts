@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, like } from "drizzle-orm";
 import { db } from "@/db";
 import { member, organization, user as authUser } from "@/db/schema";
 
@@ -28,6 +28,17 @@ async function upsertDelegatedOrganization(input: DelegatedOrganizationInput) {
     });
 }
 
+async function findOldestDelegatedOrganizationId() {
+  const [workspace] = await db
+    .select({ id: organization.id })
+    .from(organization)
+    .where(like(organization.id, "delegated-%"))
+    .orderBy(asc(organization.createdAt), asc(organization.id))
+    .limit(1);
+
+  return workspace?.id ?? null;
+}
+
 async function findFirstOrganizationIdForUser(userId: string) {
   const [existingMembership] = await db
     .select({ organizationId: member.organizationId })
@@ -52,6 +63,7 @@ async function getHostedUser(userId: string) {
 
 export const AuthRepository = {
   upsertDelegatedOrganization,
+  findOldestDelegatedOrganizationId,
   findFirstOrganizationIdForUser,
   getHostedUser,
 } as const;
