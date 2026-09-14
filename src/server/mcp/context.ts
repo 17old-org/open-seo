@@ -12,10 +12,11 @@ export type ToolAuthContext = {
   // transport.ts. Self-host/delegated: one implicit user per org → "owner".
   role: string;
   // How tool calls bind to an organization. "pinned": the request's
-  // organizationId is the authorization boundary — OAuth tokens (org stamped
-  // at consent) and self-host. "user": the credential is user-scoped (API
-  // keys) — project-scoped tools derive the org from the project row and
-  // authorize via the caller's membership in THAT org, so one key works
+  // organizationId is the authorization boundary — self-host and SAM, which
+  // have no member rows or are already bound to one project. "user": every
+  // hosted credential (OAuth tokens, API keys; stamped by the hosted
+  // transport) — project-scoped tools derive the org from the project row and
+  // authorize via the caller's membership in THAT org, so one credential works
   // across every organization the user belongs to; organizationId is only the
   // fallback context for the few tools with no project argument.
   orgScope: "pinned" | "user";
@@ -42,7 +43,8 @@ const applicationAuthContextSchema = z.object({
   // transport, never baked into tokens) and from delegated modes (implicit
   // owner).
   role: z.string().min(1).optional(),
-  // Absent everywhere except the API-key path; absent means "pinned".
+  // Stamped per request by the hosted transport, never baked into tokens;
+  // absent (self-host, SAM) means "pinned".
   orgScope: z.enum(["pinned", "user"]).optional(),
   baseUrl: z.string().url(),
   // Compatibility fallback until workers-oauth-provider supplies the verified
@@ -98,8 +100,8 @@ export function createMcpToolContext(
   const scopes = authInfo?.scopes ?? applicationAuth.scopes ?? [];
   const orgScope = applicationAuth.orgScope ?? "pinned";
   // Delegated/self-hosted modes have no member rows and a single implicit owner
-  // per org; "pinned" without a role means owner. API keys ("user" scope) must
-  // stamp the role from the user's active org membership in api-key-auth.ts.
+  // per org; "pinned" without a role means owner. Hosted ("user" scope)
+  // stamps the role from the member row per request in transport.ts.
   const role =
     applicationAuth.role ?? (orgScope === "pinned" ? "owner" : undefined);
   if (!role) {
