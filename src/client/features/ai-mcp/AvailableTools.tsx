@@ -41,6 +41,12 @@ const toolCategories: ToolCategory[] = [
         description: "Read tracked keyword positions.",
       },
       {
+        name: "search_serp_locations",
+        title: "Find a local search location",
+        description:
+          "Look up the exact Google location name to track a city in.",
+      },
+      {
         name: "create_rank_tracker",
         title: "Create a rank tracker",
         description: "Configure a domain for rank tracking.",
