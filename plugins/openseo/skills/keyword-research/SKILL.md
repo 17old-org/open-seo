@@ -74,7 +74,7 @@ Sections in this order:
 4. **The longer opportunity list** — a second table, same columns.
 5. **Risks and caveats** — notes: SERP intent that would change the recommendation, missing metrics written as `unknown`, close-variant volumes that are one bucket rather than several.
 6. **What to do next** — an ordered list, including whether to run keyword clustering, write a content brief, or save the chosen keywords.
-7. **Method** — which tools returned what.
+7. **How this report was made** — opens with the skill link line from `seo-report`, pointing at `https://openseo.so/docs/skills/keyword-research` ("OpenSEO Keyword Research skill"), then which tools returned what.
 
 ## Guardrails
 

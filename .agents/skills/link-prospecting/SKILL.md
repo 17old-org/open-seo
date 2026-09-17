@@ -106,7 +106,7 @@ Sections in this order:
 4. **Outreach drafts** — the message text for each of two or three reusable angles: resource or list inclusion, an article update, and a comparison mention.
 5. **Limitations** — notes: contact paths not found, prospects that are direct competitors or likely paid placements, and which source found each contact detail.
 6. **What to do next** — an ordered list: who to send to first, and in what order.
-7. **Method** — which tools returned prospects and which came from the web or the browser.
+7. **How this report was made** — opens with the skill link line from `seo-report`, pointing at `https://openseo.so/docs/skills/link-prospecting` ("OpenSEO Link Prospecting skill"), then which tools returned prospects and which came from the web or the browser.
 
 ## Guardrails
 

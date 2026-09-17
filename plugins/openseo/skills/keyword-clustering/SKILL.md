@@ -72,7 +72,7 @@ Sections in this order:
 3. **Page briefs** — one finding per cluster: the page type and the searcher's problem, then the page to create or update. List required sections and internal links underneath.
 4. **Cannibalization** — a table of the query, the competing URLs, and which one to keep, only when there is real evidence for it.
 5. **What to do next** — an ordered list, including the tag suggestions and the explicit ask before applying them.
-6. **Method** — where the keywords came from, and a note labelling target pages as proposed when no URL data was supplied.
+6. **How this report was made** — opens with the skill link line from `seo-report`, pointing at `https://openseo.so/docs/skills/keyword-clustering` ("OpenSEO Keyword Clustering skill"), then where the keywords came from, and a note labelling target pages as proposed when no URL data was supplied.
 
 ## Guardrails
 

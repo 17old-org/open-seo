@@ -70,7 +70,7 @@ Sections in this order:
 4. **Where to focus first** (healthy sites only) — one sentence, then a table of 3 to 5 keywords with volume and difficulty and the page or post to make for each, plus a bar chart when the volumes are worth comparing. Omit the whole section when the site is down.
 5. **What's working now** — a short list.
 6. **What to do next** — an ordered list, the one thing first.
-7. **Method** — what the tools reported and what you verified by hand.
+7. **How this report was made** — opens with the skill link line from `seo-report`, pointing at `https://openseo.so/docs/skills/seo-audit` ("OpenSEO SEO Audit skill"), then what the tools reported and what you verified by hand.
 
 Use a note for anything you could not verify or where the site's goal makes a standard recommendation the wrong call.
 

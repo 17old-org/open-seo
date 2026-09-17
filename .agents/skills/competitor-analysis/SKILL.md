@@ -79,7 +79,7 @@ Sections in this order:
 4. **Keyword themes** — a table of theme, example keywords, volume, and whether the user competes there. A bar chart when a few themes dominate the footprint.
 5. **Content patterns and authority** — prose, with a note for anything inferred from keyword rows rather than seen on a page.
 6. **What to do next** — an ordered list, shortest useful.
-7. **Method** — which tools reported what, and what you checked yourself.
+7. **How this report was made** — opens with the skill link line from `seo-report`, pointing at `https://openseo.so/docs/skills/competitor-analysis` ("OpenSEO Competitor Analysis skill"), then which tools reported what, and what you checked yourself.
 
 ## Guardrails
 

@@ -76,7 +76,7 @@ Sections in this order:
 3. **Why they win** — one finding per pattern, the Fix pointing at what the user should do instead.
 4. **Gaps and openings** — a table of theme, demand, and who currently owns it, plus a bar chart when a handful of themes carry the demand.
 5. **What to do next** — an ordered list ending in the next workflow to run: competitor analysis, keyword clustering, or a content brief.
-6. **Method** — the query set used, and a note calling the read directional when the query set was small.
+6. **How this report was made** — opens with the skill link line from `seo-report`, pointing at `https://openseo.so/docs/skills/competitive-landscape` ("OpenSEO Competitive Landscape skill"), then the query set used, and a note calling the read directional when the query set was small.
 
 ## Guardrails
 

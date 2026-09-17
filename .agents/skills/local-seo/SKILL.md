@@ -74,7 +74,7 @@ Sections in this order:
 4. **Maps coverage** — what the grid shows, where visibility drops off, and who wins there. A bar chart of ranks by direction reads faster than a paragraph; label every value.
 5. **Q&A and posting** — only when the basics are already competitive.
 6. **What to do next** — an ordered list.
-7. **Method** — which tools returned what, plus a note reading each missing grid rank against that point's `resultsCount` rather than calling it invisibility.
+7. **How this report was made** — opens with the skill link line from `seo-report`, pointing at `https://openseo.so/docs/skills/local-seo` ("OpenSEO Local SEO skill"), then which tools returned what, plus a note reading each missing grid rank against that point's `resultsCount` rather than calling it invisibility.
 
 ## Guardrails
 
