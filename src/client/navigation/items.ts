@@ -85,11 +85,11 @@ const projectNavItems = [
 // is selected, and on its own (connectNavGroup) when none is.
 const aiNavItem = linkOptions({
   to: "/ai" as const,
-  label: "MCP setup",
+  label: "Agent setup",
   icon: Bot,
 });
 
-// Shown only when no project is selected; with a project, MCP setup lives in
+// Shown only when no project is selected; with a project, Agent setup lives in
 // the "AI" group below.
 export const connectNavGroup = {
   label: "AI",

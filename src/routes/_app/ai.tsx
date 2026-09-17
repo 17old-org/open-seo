@@ -3,7 +3,10 @@ import { useState } from "react";
 import { ArrowUpRight, ShieldAlert } from "lucide-react";
 import { getAuthMode } from "@/lib/auth-mode";
 import { captureClientEvent } from "@/client/lib/posthog";
-import { getAgentSetupPrompt } from "@/client/features/ai-mcp/agentSetupPrompt";
+import {
+  agentUpdatePrompt,
+  getAgentSetupPrompt,
+} from "@/client/features/ai-mcp/agentSetupPrompt";
 import { CopyButton } from "@/client/features/ai-mcp/SetupControls";
 import {
   ClaudeIcon,
@@ -13,7 +16,7 @@ import {
   OpenClawIcon,
 } from "@/client/features/ai-mcp/AgentIcons";
 
-const DOCS_URL = "https://openseo.so/docs/mcp";
+const DOCS_URL = "https://openseo.so/docs/agent-setup";
 const COACH_DOCS_URL = "https://openseo.so/docs/skills/seo-coach";
 const SKILLS = [
   ["seo-coach", "Explains where you stand and picks your next step."],
@@ -60,9 +63,7 @@ function AiPage() {
   return (
     <div className="h-full overflow-auto bg-base-100 px-4 py-12 md:px-6 md:py-16 pb-24 md:pb-12">
       <div className="mx-auto max-w-2xl">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Use OpenSEO from your agent
-        </h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Agent setup</h1>
         <p className="mt-3 text-pretty text-sm leading-relaxed text-base-content/70">
           The most powerful way to use OpenSEO is through the AI agent you
           already use. Set it up once, then ask it anything.
@@ -90,81 +91,87 @@ function AiPage() {
 
         {tab === "setup" ? (
           <>
-            <section className="mt-6 rounded-xl border border-base-300 p-5 sm:p-6">
-              <ol className="space-y-6">
-                <li className="flex gap-4">
-                  <StepNumber n={1} />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium">
-                      Paste the setup prompt into your agent
-                    </p>
-                    <p className="mt-1 text-sm text-base-content/60">
-                      It configures the MCP connection and installs the SEO
-                      skills for you.
-                    </p>
-                    <ul className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-                      {AGENTS.map(({ name, Icon }) => (
-                        <li
-                          key={name}
-                          className="flex items-center gap-1.5 text-xs text-base-content/60"
-                        >
-                          <Icon className="size-4" />
-                          {name}
-                        </li>
-                      ))}
-                      <li className="text-xs text-base-content/45">
-                        or any MCP client
-                      </li>
-                    </ul>
-                    <div className="mt-4 [&>button]:h-11 [&>button]:gap-2 [&>button]:text-sm">
-                      <CopyButton
-                        primary
-                        value={prompt}
-                        label="Copy setup prompt"
-                        successMessage="Setup prompt copied"
-                        onCopy={() =>
-                          captureClientEvent("mcp:setup_prompt_copy")
-                        }
-                      />
-                    </div>
-                  </div>
-                </li>
-                <li className="flex gap-4">
-                  <StepNumber n={2} />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium">
-                      Ask it to run{" "}
-                      <a
-                        href={COACH_DOCS_URL}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="font-mono text-[13px] underline decoration-base-content/25 underline-offset-4 hover:decoration-base-content"
-                      >
-                        /seo-coach
-                      </a>
-                    </p>
-                    <p className="mt-1 text-sm text-base-content/60">
-                      The coach explains where you stand and picks your next
-                      step. Don&apos;t overthink it. Ask questions.
-                    </p>
-                  </div>
-                </li>
-              </ol>
-            </section>
+            <div className="mt-6 space-y-5">
+              <section className="rounded-xl border border-base-300 p-5 sm:p-6">
+                <h2 className="text-base font-semibold">Set up your agent</h2>
+                <p className="mt-2 text-sm leading-relaxed text-base-content/60">
+                  Paste the setup prompt into your agent to connect OpenSEO and
+                  install its SEO skills. It will guide you through any manual
+                  steps.
+                </p>
+                <ul className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+                  {AGENTS.map(({ name, Icon }) => (
+                    <li
+                      key={name}
+                      className="flex items-center gap-1.5 text-xs text-base-content/60"
+                    >
+                      <Icon className="size-4" />
+                      {name}
+                    </li>
+                  ))}
+                  <li className="text-xs text-base-content/45">
+                    or any MCP client
+                  </li>
+                </ul>
+                <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3 [&>button]:h-11 [&>button]:gap-2 [&>button]:text-sm">
+                  <CopyButton
+                    primary
+                    value={prompt}
+                    label="Copy setup prompt"
+                    successMessage="Setup prompt copied"
+                    onCopy={() => captureClientEvent("mcp:setup_prompt_copy")}
+                  />
+                  <a
+                    href={`${DOCS_URL}#set-up-your-agent`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-sm text-base-content/60 underline decoration-base-content/25 underline-offset-4 hover:text-base-content"
+                  >
+                    Setup instructions
+                    <ArrowUpRight className="size-3.5" />
+                  </a>
+                </div>
+                <p className="mt-5 border-t border-base-300 pt-4 text-sm leading-relaxed text-base-content/60">
+                  Once connected, ask your agent to use{" "}
+                  <a
+                    href={COACH_DOCS_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-base-content underline decoration-base-content/25 underline-offset-4 hover:decoration-base-content"
+                  >
+                    SEO Coach
+                  </a>{" "}
+                  to help you choose what to do next.
+                </p>
+              </section>
 
-            <p className="mt-5 text-sm text-base-content/60">
-              Prefer to set it up yourself?{" "}
-              <a
-                href={DOCS_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="link link-primary inline-flex items-center gap-0.5"
-              >
-                Read the docs
-                <ArrowUpRight className="size-3.5" />
-              </a>{" "}
-              for per-agent guides and the full tool list.
-            </p>
+              <section className="rounded-xl border border-base-300 p-5 sm:p-6">
+                <h2 className="text-base font-semibold">Update your skills</h2>
+                <p className="mt-2 text-sm leading-relaxed text-base-content/60">
+                  Already connected? Paste the update prompt into your agent to
+                  get the latest OpenSEO skills while preserving your connection
+                  settings and personal edits.
+                </p>
+                <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3 [&>button]:h-11 [&>button]:gap-2 [&>button]:text-sm">
+                  <CopyButton
+                    primary
+                    value={agentUpdatePrompt}
+                    label="Copy update prompt"
+                    successMessage="Update prompt copied"
+                    onCopy={() => captureClientEvent("mcp:update_prompt_copy")}
+                  />
+                  <a
+                    href={`${DOCS_URL}#update-your-skills`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-sm text-base-content/60 underline decoration-base-content/25 underline-offset-4 hover:text-base-content"
+                  >
+                    Update instructions
+                    <ArrowUpRight className="size-3.5" />
+                  </a>
+                </div>
+              </section>
+            </div>
 
             {getAuthMode(import.meta.env.AUTH_MODE) === "cloudflare_access" ? (
               <div className="alert alert-warning mt-8 text-sm" role="alert">
@@ -225,13 +232,5 @@ function AiPage() {
         )}
       </div>
     </div>
-  );
-}
-
-function StepNumber({ n }: { n: number }) {
-  return (
-    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-base-200 text-xs font-semibold text-base-content/70">
-      {n}
-    </span>
   );
 }
