@@ -44,6 +44,12 @@ const topLevel = () =>
 const noFetchMetadata = () =>
   new Request(`https://app.example.com/s/${TOKEN}/raw`);
 
+/** A cache-key buster: any query string at all. */
+const withQuery = () =>
+  new Request(`https://app.example.com/s/${TOKEN}/raw?x=1`, {
+    headers: { "Sec-Fetch-Dest": "iframe" },
+  });
+
 const SHARED_REPORT = {
   id: "report_1",
   projectId: "project_1",
@@ -75,7 +81,7 @@ describe("handleSharedReportRequest", () => {
       "referrer-policy": "no-referrer",
       "x-content-type-options": "nosniff",
       "x-robots-tag": "noindex, nofollow",
-      "cache-control": "no-store",
+      "cache-control": "public, max-age=0, s-maxage=60",
     });
   });
 
@@ -86,7 +92,19 @@ describe("handleSharedReportRequest", () => {
 
     expect(response.status).toBe(302);
     expect(response.headers.get("location")).toBe(`/s/${TOKEN}`);
+    expect(response.headers.get("cache-control")).toBe("no-store");
     expect(mocks.getReportHtml).not.toHaveBeenCalled();
+  });
+
+  // The query string is part of the edge cache key, so it is stripped before
+  // anything is read.
+  it("bounces a query string to the bare path without querying", async () => {
+    const response = await handleSharedReportRequest(TOKEN, withQuery());
+
+    expect(response.status).toBe(302);
+    expect(response.headers.get("location")).toBe(`/s/${TOKEN}/raw`);
+    expect(response.headers.get("cache-control")).toBe("no-store");
+    expect(mocks.getSharedReportByToken).not.toHaveBeenCalled();
   });
 
   // The redirect needs the header to say so. Bouncing a client that sends no
@@ -133,6 +151,7 @@ describe("handleSharedReportRequest", () => {
 
     expect(response.status).toBe(404);
     expect(await response.text()).toBe(NOT_SHARED_BODY);
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
     expect(mocks.getReportHtml).not.toHaveBeenCalled();
   });
 

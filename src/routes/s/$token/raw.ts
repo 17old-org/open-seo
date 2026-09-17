@@ -22,6 +22,21 @@ import { sharePath } from "@/shared/report-share";
 const NOT_SHARED_BODY = "This report isn't shared.";
 
 /**
+ * How long a colo may keep the document. A revoked link keeps loading for up
+ * to this long from an edge that already has it, which is what the share modal
+ * tells the user. ETags are deliberately out of scope: a revalidation answered
+ * before the token lookup would make revocation advisory.
+ */
+const EDGE_CACHE_CONTROL = "public, max-age=0, s-maxage=60";
+
+/** Every redirect this endpoint answers: never stored, by anyone. */
+const bounceTo = (location: string) =>
+  new Response(null, {
+    status: 302,
+    headers: { Location: location, "Cache-Control": "no-store" },
+  });
+
+/**
  * A stable pseudonym for one link, so views can be counted per report without
  * a person profile and without putting the token itself (the capability) into
  * PostHog.
@@ -47,6 +62,12 @@ async function handleSharedReportRequest(
   // Shape first, so a scanner walking /s/<anything>/raw costs no query.
   if (!SHARE_TOKEN_PATTERN.test(token)) return notShared();
 
+  // The query string is part of the cache key, so `?cachebust=<random>` would
+  // otherwise turn every request back into an origin hit. Bounce to the bare
+  // path before any query runs: there is no parameter this endpoint reads.
+  const url = new URL(request.url);
+  if (url.search !== "") return bounceTo(`${sharePath(token)}/raw`);
+
   const report = await ReportRepository.getSharedReportByToken(token);
   if (!report || report.archived) return notShared();
 
@@ -58,13 +79,12 @@ async function handleSharedReportRequest(
   // Sec-Fetch-Dest at all (an old browser, a link-preview fetcher, curl) would
   // otherwise be bounced to a page whose frame it cannot load either, so an
   // absent header is served the document.
+  //
+  // The 200 is the only cacheable answer here, so the response never needs to
+  // vary on Sec-Fetch-Dest: the redirect path is a 302, served `no-store`, and
+  // a shared cache stores neither it nor the 404.
   const dest = request.headers.get("Sec-Fetch-Dest");
-  if (dest !== null && dest !== "iframe") {
-    return new Response(null, {
-      status: 302,
-      headers: { Location: sharePath(token), "Cache-Control": "no-store" },
-    });
-  }
+  if (dest !== null && dest !== "iframe") return bounceTo(sharePath(token));
 
   const html = await ReportRepository.getReportHtml(
     report.projectId,
@@ -93,7 +113,7 @@ async function handleSharedReportRequest(
   );
 
   return reportDocumentResponse(html, {
-    cacheControl: "no-store",
+    cacheControl: EDGE_CACHE_CONTROL,
     noindex: true,
   });
 }

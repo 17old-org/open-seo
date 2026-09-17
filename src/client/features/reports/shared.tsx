@@ -178,7 +178,7 @@ export function ShareReportModal({
             <span className="block text-xs text-base-content/60">
               {shared
                 ? "Anyone with the link can view. No sign-in needed."
-                : "Only members of your organization can open it."}
+                : "Only members of your organization can open it. A link that was open can keep loading for up to a minute."}
             </span>
           </span>
           <input
