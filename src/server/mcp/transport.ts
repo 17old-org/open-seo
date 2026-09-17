@@ -220,6 +220,10 @@ export async function handleAuthenticatedOpenSeoMcpRequest(
     organizationId: organization.organizationId,
     role: organization.role,
     orgScope: "user",
+    // The only per-request client signal that reaches a tools/call: initialize's
+    // clientInfo is long gone by then and this transport never populates
+    // ServerContext.http.req. Display only (report attribution).
+    userAgent: request.headers.get("user-agent") ?? undefined,
   });
   return createRequestHandler(requestProps, [
     hostedUrl.hostname,
@@ -247,6 +251,7 @@ export async function handleSelfHostedOpenSeoMcpRequest(
     userEmail: identity.userEmail,
     organizationId: identity.organizationId,
     baseUrl: getPublicOrigin(request),
+    userAgent: request.headers.get("user-agent") ?? undefined,
   });
 
   return createRequestHandler(props)(request, env, ctx);

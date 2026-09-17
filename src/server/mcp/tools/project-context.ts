@@ -26,7 +26,7 @@ const contextOutputSchema = {
   ...optionalMetaOutputSchema,
 } as const;
 
-const contextPath = (projectId: string) => `/p/${projectId}/settings/context`;
+const contextPath = (projectId: string) => `/p/${projectId}/context`;
 
 const getInputSchema = { projectId: projectIdSchema } as const;
 

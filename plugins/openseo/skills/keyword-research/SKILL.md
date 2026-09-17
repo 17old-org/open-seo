@@ -26,6 +26,10 @@ The project-context tools are free and shared with the app and other agents.
 3. Before spending credits, check the research log. If the same research ran within the last 30 days, reuse that result and say so instead of re-buying it.
 4. On finish, write back what is durable — a sharpened `business_overview` or `current_goal`, competitors that kept appearing in the SERPs via `addCompetitors`, pages the keywords should land on via `addKeyPages` — and append a research log entry: `{ appendResearchLog: { summary: "Keyword research: <seeds/market>. Verdict: <conclusion>" } }`.
 
+## Deliver as a report
+
+Deliver through the `seo-report` skill, saving with `skill: "keyword-research"`. If that skill is not available, say so and stop before writing HTML.
+
 ## OpenSEO MCP tools
 
 - `research_keywords`: primary discovery tool. Use 1-5 seeds per call and prefer 150 results unless the user asks for exhaustive research.
@@ -58,19 +62,17 @@ The project-context tools are free and shared with the app and other agents.
 
 ## Output format
 
-Start with the highest-signal recommendation:
+`h1`: the site or topic.
 
-- Best opportunity theme
-- Top keywords to target now
-- Keywords to save
-- Risks or SERP caveats
+Sections in this order:
 
-Then include a compact table:
-
-| Keyword | Intent | Volume |  KD | CPC | Priority | Notes |
-| ------- | ------ | -----: | --: | --: | -------- | ----- |
-
-End with next actions, including whether to run keyword clustering, create a content brief, or save the chosen keywords.
+1. **The opportunity** — one or two opening sentences naming the best theme and why the site can win it now.
+2. **Target these now** — a table of keyword, intent, volume, KD, CPC, and the page to make. Add a bar chart comparing the volumes of the shortlist.
+3. **Why these** — one finding per keyword that needs justifying: the SERP or metric evidence, then the page to build.
+4. **The longer opportunity list** — a second table, same columns.
+5. **Risks and caveats** — notes: SERP intent that would change the recommendation, missing metrics written as `unknown`, close-variant volumes that are one bucket rather than several.
+6. **What to do next** — an ordered list, including whether to run keyword clustering, write a content brief, or save the chosen keywords.
+7. **Method** — which tools returned what.
 
 ## Guardrails
 

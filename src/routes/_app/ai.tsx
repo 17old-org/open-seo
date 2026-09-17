@@ -24,6 +24,10 @@ const SKILL_NAMES = [
   "link-prospecting",
   "local-seo",
   "seo-audit",
+  // Listed so people know it installs, but the skills above deliver through it
+  // — running it on its own gives it no research to write up, so it is labelled
+  // in the list below rather than presented as something to type.
+  "seo-report",
 ];
 const SKILLS_INSTALL = `npx skills add every-app/open-seo`;
 const ALL_SKILLS_INSTALL = `npx skills add every-app/open-seo --skill '*'`;
@@ -43,6 +47,27 @@ export const Route = createFileRoute("/_app/ai")({
   component: AiPage,
 });
 
+function SkillList() {
+  return (
+    <ul className="mt-2 grid gap-1.5 text-sm text-base-content/70 sm:grid-cols-2">
+      {SKILL_NAMES.map((skill) => (
+        <li key={skill} className="flex gap-2">
+          <span className="text-base-content/35">-</span>
+          <span>
+            {skill}
+            {skill === "seo-report" ? (
+              <span className="text-base-content/45">
+                {" "}
+                (used by the skills above)
+              </span>
+            ) : null}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function AiPage() {
   const mcpUrl =
     typeof window === "undefined"
@@ -52,7 +77,7 @@ function AiPage() {
   return (
     <div className="h-full overflow-auto bg-base-100 px-4 py-12 md:px-6 md:py-16 pb-24 md:pb-12">
       <div className="mx-auto max-w-3xl">
-        <h1 className="text-2xl font-semibold">AI & MCP</h1>
+        <h1 className="text-2xl font-semibold">MCP setup</h1>
         <p className="mt-2 text-sm text-base-content/70 leading-relaxed">
           Connect your AI agent to OpenSEO. Run keyword research, SERP analysis,
           domain lookups, and backlink reviews from your editor or chat.
@@ -284,14 +309,7 @@ function AiPage() {
             <p className="mt-4 text-xs font-medium uppercase tracking-wide text-base-content/50">
               Available skills
             </p>
-            <ul className="mt-2 grid gap-1.5 text-sm text-base-content/70 sm:grid-cols-2">
-              {SKILL_NAMES.map((skill) => (
-                <li key={skill} className="flex gap-2">
-                  <span className="text-base-content/35">-</span>
-                  <span>{skill}</span>
-                </li>
-              ))}
-            </ul>
+            <SkillList />
           </div>
         </section>
 

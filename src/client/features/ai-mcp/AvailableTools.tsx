@@ -28,6 +28,27 @@ const toolCategories: ToolCategory[] = [
     ],
   },
   {
+    label: "Reports",
+    tools: [
+      {
+        name: "save_report",
+        title: "Save a report",
+        description:
+          "Save an agent's finished HTML report to the project, or replace an existing one.",
+      },
+      {
+        name: "list_reports",
+        title: "List reports",
+        description: "See the project's saved reports and their summaries.",
+      },
+      {
+        name: "get_report",
+        title: "Get a report",
+        description: "Read one report's summary, and its HTML when needed.",
+      },
+    ],
+  },
+  {
     label: "Keywords",
     tools: [
       {

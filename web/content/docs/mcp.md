@@ -13,7 +13,7 @@ https://app.openseo.so/mcp
 
 The first connection sends you through OpenSEO login. After authorization, your MCP client can call OpenSEO tools with the project context and account scopes you approved. For headless environments and CI, [connect with an API key](#connect-with-an-api-key) instead.
 
-For the most current setup UI and a copyable endpoint, open [AI & MCP in OpenSEO](https://app.openseo.so/ai).
+For the most current setup UI and a copyable endpoint, open [MCP setup in OpenSEO](https://app.openseo.so/ai).
 
 ## Claude Code
 

@@ -1,7 +1,9 @@
 import {
   Bookmark,
   Bot,
+  Brain,
   ClipboardCheck,
+  FileText,
   Globe,
   LayoutDashboard,
   Link2,
@@ -67,17 +69,30 @@ const projectNavItems = [
     label: "Prompt Explorer",
     icon: MessageSquare,
   },
+  {
+    to: "/p/$projectId/reports" as const,
+    label: "Reports",
+    icon: FileText,
+  },
+  {
+    to: "/p/$projectId/context" as const,
+    label: "Context",
+    icon: Brain,
+  },
 ] as const;
 
+// Project-independent. Rendered inside the project "AI" group when a project
+// is selected, and on its own (connectNavGroup) when none is.
 const aiNavItem = linkOptions({
   to: "/ai" as const,
-  label: "AI & MCP",
+  label: "MCP setup",
   icon: Bot,
 });
 
-// Always-visible sidebar group (not project-scoped, unlike the groups below).
+// Shown only when no project is selected; with a project, MCP setup lives in
+// the "AI" group below.
 export const connectNavGroup = {
-  label: "Connect",
+  label: "AI",
   items: [aiNavItem],
 };
 
@@ -102,6 +117,14 @@ export function getProjectNavGroups(projectId: string) {
     {
       label: "Overview",
       items: [byPath("/p/$projectId")],
+    },
+    {
+      label: "AI",
+      items: [
+        byPath("/p/$projectId/reports"),
+        byPath("/p/$projectId/context"),
+        aiNavItem,
+      ],
     },
     {
       label: "Research",

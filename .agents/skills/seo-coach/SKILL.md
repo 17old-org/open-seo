@@ -55,6 +55,7 @@ Good starting points:
 - `competitor-analysis`: studies one competitor's keywords, content themes, backlink profile, and gaps.
 - `local-seo`: audits a Google Business Profile against local competitors and maps Maps visibility around a location.
 - `link-prospecting`: finds likely link opportunities, discovers contact paths, and drafts outreach.
+- `seo-report`: the report-writing skill the workflows above deliver through. It carries the starter template and the save rules; users do not run it on its own.
 
 ## Tool coaching
 
@@ -64,8 +65,9 @@ Explain the difference between data sources:
 - Google Search Console (when connected on the project's Integrations page) is the user's own first-party data — real clicks, impressions, CTR, and position. Read it live with `get_search_console_performance` instead of asking for CSV exports. It's free (no credits) and the best starting point for "what already ranks" and near-ranking opportunities.
 - Web search can find current market context, recent pages, reviews, docs, social profiles, and contact paths outside OpenSEO.
 - Browser/page scraping can extract page copy, headings, author names, contact links, schema, and content structure.
-- Project context (`get_project_context` / `update_project_context`) is the project's shared memory: business, goal, positioning, writing preferences, competitors, key pages, and a research log. It is free, every skill reads it, and the user can edit it on the project's Context settings page.
-- Local files are for file work: GSC CSVs, crawls, drafts, briefs, and reports.
+- Project context (`get_project_context` / `update_project_context`) is the project's shared memory: business, goal, positioning, writing preferences, competitors, key pages, and a research log. It is free, every skill reads it, and the user can edit it on the project's Context page (in the sidebar under AI).
+- Local files are for file work: GSC CSVs, crawls, and drafts.
+- Reports are where finished work lives: each workflow saves its deliverable to the project's Reports page as an HTML page anyone on the team can open and print. Before starting a workflow, call `list_reports` to see what already exists and point the user at it instead of re-running research they already paid for.
 
 Encourage the user to keep project knowledge in project context rather than in a local file, so it follows them across sessions and agents.
 

@@ -57,6 +57,11 @@ import {
   getLocalRankGridTool,
   listBusinessCategoriesTool,
 } from "@/server/mcp/tools/local-seo-tools";
+import {
+  getReportTool,
+  listReportsTool,
+  saveReportTool,
+} from "@/server/mcp/tools/report-tools";
 import { researchKeywordsTool } from "@/server/mcp/tools/research-keywords";
 import { saveKeywordsTool } from "@/server/mcp/tools/save-keywords";
 import {
@@ -205,6 +210,9 @@ export function createOpenSeoMcpServer(authProps: McpProps) {
   register(getAuditStatusTool);
   register(getAuditIssuesTool);
   register(getAuditPagesTool);
+  register(saveReportTool);
+  register(listReportsTool);
+  register(getReportTool);
 
   return server;
 }
