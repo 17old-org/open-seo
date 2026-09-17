@@ -23,7 +23,7 @@ Accepted. Shipped in PR #616 on top of reports (`specs/0012-dynamic-reports.md`)
 
 **States.** Unknown, unshared or deleted: one "not shared" page with a 404 status, so tokens cannot be probed. Archived project: 404 with the archived message; restoring the project brings the link back.
 
-**One gate.** The mint, the public page and the raw endpoint ask the same question — hosted, and not switched off — so they cannot disagree. The kill switch is one environment variable that turns every public link off without a deploy; it fails open, so sharing is on unless the value is exactly "false", because an unset or misspelled value must not silently break every live link. A refusal is an ordinary validation error: the operator flipped the switch, and the reader does not need a bespoke code for it.
+**One gate.** The mint, the public page and the raw endpoint ask the same question — is this a hosted deployment — so they cannot disagree. A self-hosted deployment is behind Cloudflare Access or has no auth at all, and neither can serve a link to a reader who is not signed in, so there sharing is refused with an ordinary validation error and every share path answers as if the link never existed.
 
 **Sandbox facts**, checked in the three major engines: meta refresh, `javascript:` and `data:` navigations, form submission and a `<meta>` policy that adds scripts are all refused, and the origin is opaque. A clicked link only replaces the frame's content; links that open a new tab do so with the opener severed.
 

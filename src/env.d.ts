@@ -47,13 +47,6 @@ declare namespace Cloudflare {
     // HMAC secret for the operator-only GDPR storage-erasure endpoint.
     GDPR_ERASURE_SECRET?: string;
 
-    // Kill switch for public report share links. Sharing is on unless this is
-    // exactly "false", which turns off every live /s/<token> link and refuses
-    // new ones — an incident lever that needs no code change. Alchemy
-    // reconciles worker vars on every deploy, so a lasting value belongs in
-    // the env file; a dashboard edit holds until the next deploy.
-    SHARES_ENABLED?: string;
-
     // Cloudflare Turnstile — signup captcha (hosted only). Secret verifies
     // tokens server-side; site key is public and inlined into the client build.
     TURNSTILE_SECRET_KEY?: string;

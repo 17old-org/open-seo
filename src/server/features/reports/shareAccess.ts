@@ -1,7 +1,4 @@
-import {
-  getOptionalEnvValue,
-  isHostedServerAuthMode,
-} from "@/server/lib/runtime-env";
+import { isHostedServerAuthMode } from "@/server/lib/runtime-env";
 
 // The two server-side gates every share path runs: is sharing on at all, and
 // does this path segment even look like a token. Server-only, so reading the
@@ -9,20 +6,13 @@ import {
 // client half of sharing is `sharePath` in @/shared/report-share.
 
 /**
- * Hosted, and not switched off. One predicate rather than two, so the mint,
- * the share page and the raw endpoint cannot disagree about either half.
- *
  * Sharing is a hosted-only feature: a self-hosted deployment is behind
  * Cloudflare Access or has no auth at all, and neither can serve a link to a
- * reader who is not signed in. The `SHARES_ENABLED` kill switch is the
- * operator lever on top of that: sharing is on unless the var is exactly
- * "false", because an unset or misspelled value must not silently break every
- * live link, and the switch exists to be flipped in the dashboard without a
- * deploy.
+ * reader who is not signed in. One predicate, so the mint, the share page and
+ * the raw endpoint cannot disagree.
  */
-export async function sharesEnabled(): Promise<boolean> {
-  if (!(await isHostedServerAuthMode())) return false;
-  return (await getOptionalEnvValue("SHARES_ENABLED")) !== "false";
+export function sharesEnabled(): Promise<boolean> {
+  return isHostedServerAuthMode();
 }
 
 /**

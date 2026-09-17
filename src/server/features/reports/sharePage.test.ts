@@ -4,7 +4,6 @@ import { loadSharePage } from "./sharePage";
 const mocks = vi.hoisted(() => ({
   env: {
     AUTH_MODE: "hosted" as string | undefined,
-    SHARES_ENABLED: undefined as string | undefined,
   },
   getSharedReportByToken: vi.fn(),
   setResponseStatus: vi.fn(),
@@ -33,7 +32,6 @@ const SHARED_REPORT = {
 
 beforeEach(() => {
   mocks.env.AUTH_MODE = "hosted";
-  mocks.env.SHARES_ENABLED = undefined;
   mocks.getSharedReportByToken.mockResolvedValue(SHARED_REPORT);
 });
 
@@ -70,12 +68,6 @@ describe("loadSharePage", () => {
     [
       "an unknown or revoked token",
       () => mocks.getSharedReportByToken.mockResolvedValue(null),
-    ],
-    [
-      "the kill switch turned off",
-      () => {
-        mocks.env.SHARES_ENABLED = "false";
-      },
     ],
     // Sharing is hosted-only: a self-hosted deployment answers as if the
     // link had never existed.

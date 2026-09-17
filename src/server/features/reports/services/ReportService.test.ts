@@ -1,8 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  getOptionalEnvValue,
-  isHostedServerAuthMode,
-} from "@/server/lib/runtime-env";
+import { isHostedServerAuthMode } from "@/server/lib/runtime-env";
 import { formatCount } from "@/shared/format";
 import {
   REPORT_MAX_BYTES_PER_ORG,
@@ -32,7 +29,6 @@ vi.mock("@/server/features/reports/repositories/ReportRepository", () => ({
 }));
 vi.mock("@/server/lib/posthog", () => ({ captureServerEvent: vi.fn() }));
 vi.mock("@/server/lib/runtime-env", () => ({
-  getOptionalEnvValue: vi.fn(),
   isHostedServerAuthMode: vi.fn(),
 }));
 
@@ -222,7 +218,6 @@ describe("sharing", () => {
 
   beforeEach(() => {
     vi.mocked(isHostedServerAuthMode).mockResolvedValue(true);
-    vi.mocked(getOptionalEnvValue).mockResolvedValue(undefined);
     mocks.getReport.mockResolvedValue(storedReport);
   });
 
@@ -274,23 +269,13 @@ describe("sharing", () => {
     expect(mocks.setShareToken).not.toHaveBeenCalled();
   });
 
-  // A self-hosted deployment cannot serve the link, and the kill switch turns
-  // the public routes off, so in either case a minted token is a link that
-  // silently does nothing. Refused before the report is even read.
-  it.each([
-    [
-      "the deployment is not hosted",
-      () => vi.mocked(isHostedServerAuthMode).mockResolvedValue(false),
-    ],
-    [
-      "the kill switch is off",
-      () => vi.mocked(getOptionalEnvValue).mockResolvedValue("false"),
-    ],
-  ])("refuses to mint when %s", async (_case, arrange) => {
-    arrange();
+  // A self-hosted deployment cannot serve the link, so a minted token would be
+  // a link that silently does nothing. Refused before the report is even read.
+  it("refuses to mint when the deployment is not hosted", async () => {
+    vi.mocked(isHostedServerAuthMode).mockResolvedValue(false);
 
     await expect(share()).rejects.toThrow(
-      "Sharing is switched off on this deployment.",
+      "Sharing is only available on hosted OpenSEO.",
     );
     expect(mocks.setShareToken).not.toHaveBeenCalled();
     expect(mocks.getReport).not.toHaveBeenCalled();

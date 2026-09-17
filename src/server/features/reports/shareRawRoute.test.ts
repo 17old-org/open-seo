@@ -8,7 +8,6 @@ import { REPORT_CSP } from "@/shared/report-sandbox";
 const mocks = vi.hoisted(() => ({
   env: {
     AUTH_MODE: "hosted" as string | undefined,
-    SHARES_ENABLED: undefined as string | undefined,
   },
   getSharedReportByToken: vi.fn(),
   getReportHtml: vi.fn(),
@@ -63,7 +62,6 @@ const SHARED_REPORT = {
 
 beforeEach(() => {
   mocks.env.AUTH_MODE = "hosted";
-  mocks.env.SHARES_ENABLED = undefined;
   mocks.getSharedReportByToken.mockResolvedValue(SHARED_REPORT);
   mocks.getReportHtml.mockResolvedValue(HTML);
 });
@@ -130,12 +128,6 @@ describe("handleSharedReportRequest", () => {
           ...SHARED_REPORT,
           archived: true,
         }),
-    ],
-    [
-      "the kill switch turned off",
-      () => {
-        mocks.env.SHARES_ENABLED = "false";
-      },
     ],
     // Sharing is hosted-only.
     [

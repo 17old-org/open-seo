@@ -248,12 +248,12 @@ type ShareParams = {
  */
 async function shareReport(params: ShareParams): Promise<ReportMetadata> {
   // Refused here rather than only hidden in the UI: the server is the trust
-  // boundary. A token minted while sharing is off is a link that silently does
-  // nothing, and the user would have copied it believing otherwise.
+  // boundary. A token minted on a self-hosted deployment is a link that
+  // silently does nothing, and the user would have copied it believing otherwise.
   if (!(await sharesEnabled())) {
     throw new AppError(
       "VALIDATION_ERROR",
-      "Sharing is switched off on this deployment.",
+      "Sharing is only available on hosted OpenSEO.",
     );
   }
 

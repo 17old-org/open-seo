@@ -119,14 +119,6 @@ export function getProjectNavGroups(projectId: string) {
       items: [byPath("/p/$projectId")],
     },
     {
-      label: "AI",
-      items: [
-        byPath("/p/$projectId/reports"),
-        byPath("/p/$projectId/context"),
-        aiNavItem,
-      ],
-    },
-    {
       label: "Research",
       items: [
         byPath("/p/$projectId/keywords"),
@@ -143,6 +135,14 @@ export function getProjectNavGroups(projectId: string) {
         byPath("/p/$projectId/rank-tracking"),
         byPath("/p/$projectId/saved"),
         byPath("/p/$projectId/audit"),
+      ],
+    },
+    {
+      label: "AI",
+      items: [
+        byPath("/p/$projectId/reports"),
+        byPath("/p/$projectId/context"),
+        aiNavItem,
       ],
     },
   ];
