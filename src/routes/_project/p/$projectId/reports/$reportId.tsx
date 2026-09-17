@@ -122,7 +122,7 @@ function ReportDetailPage() {
         <div className="mx-auto max-w-3xl space-y-4">
           <div className="alert alert-error">
             <span className="text-sm">
-              {/* A deleted report and another organization's report are the
+              {/* A deleted report and another project's report are the
                   same answer on purpose, so ids cannot be probed. */}
               {getErrorCode(reportQuery.error) === "NOT_FOUND"
                 ? "This report does not exist or you do not have access to it."
@@ -190,9 +190,10 @@ function ReportDetailPage() {
                 <dd>{formatCreatedBy(report)}</dd>
               </div>
               <div className="flex items-baseline gap-1.5">
-                <dt className="text-base-content/50">Skill</dt>
-                {/* An em dash, as in the list column: the label explains it. */}
-                <dd>{report.skill ?? "—"}</dd>
+                <dt className="text-base-content/50">Type</dt>
+                {/* As in the list's Type column: the template name when the
+                    report followed one, else the skill, else an em dash. */}
+                <dd>{report.templateName ?? report.skill ?? "—"}</dd>
               </div>
               <div className="flex items-baseline gap-1.5">
                 <dt className="text-base-content/50">Updated</dt>

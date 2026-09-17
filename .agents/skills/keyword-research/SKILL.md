@@ -64,6 +64,8 @@ Deliver through the `seo-report` skill, saving with `skill: "keyword-research"`.
 
 `h1`: the site or topic.
 
+If a report template applies (see `seo-report`), its sections and tone replace this list.
+
 Sections in this order:
 
 1. **The opportunity** — one or two opening sentences naming the best theme and why the site can win it now.

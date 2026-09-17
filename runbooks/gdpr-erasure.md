@@ -78,6 +78,13 @@ The execution order is designed for safe retries:
 3. Delete the organizations and user in one Postgres transaction, relying on
    foreign-key cascades for project data, then verify the root rows are gone.
 
+Two classes are re-attributed rather than deleted, because they have no user
+foreign key and a surviving multi-member organization keeps them: `reports` and
+`report_templates` (both `created_by_user_id` becomes `gdpr-deleted-user`). The
+dry run counts them as `attributed_reports` and `attributed_report_templates`,
+alongside the `reports` and `report_templates` in the target's projects — those
+cascade away with the project when its organization is deleted.
+
 If a step fails, fix the reported credential or service error and run the same
 command again. Vendor absence and already-finished Workflows are treated as
 successful no-ops.

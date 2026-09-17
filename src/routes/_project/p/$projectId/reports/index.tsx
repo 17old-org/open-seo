@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ReportsList } from "@/client/features/reports/ReportsList";
@@ -37,11 +37,20 @@ function ReportsPage() {
   return (
     <div className="overflow-auto px-4 py-4 pb-24 md:px-6 md:py-6 md:pb-8">
       <div className="mx-auto max-w-5xl space-y-4">
-        <div>
-          <h1 className="text-2xl font-semibold">Reports</h1>
-          <p className="text-sm text-base-content/70">
-            HTML reports your agents saved to this project.
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-semibold">Reports</h1>
+            <p className="text-sm text-base-content/70">
+              HTML reports your agents saved to this project.
+            </p>
+          </div>
+          <Link
+            to="/p/$projectId/reports/templates"
+            params={{ projectId }}
+            className="btn btn-ghost btn-sm"
+          >
+            Templates
+          </Link>
         </div>
 
         {reportsQuery.isPending ? (

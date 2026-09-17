@@ -69,6 +69,8 @@ Deliver through the `seo-report` skill, saving with `skill: "competitor-analysis
 
 `h1`: the competitor domain.
 
+If a report template applies (see `seo-report`), its sections and tone replace this list.
+
 Sections in this order:
 
 1. **Snapshot** — one or two opening sentences, then a table of the competitor's organic footprint (traffic estimate, keyword count, referring domains). Add the user's domain as a second row when comparing.

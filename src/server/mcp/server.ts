@@ -62,6 +62,10 @@ import {
   listReportsTool,
   saveReportTool,
 } from "@/server/mcp/tools/report-tools";
+import {
+  listReportTemplatesTool,
+  saveReportTemplateTool,
+} from "@/server/mcp/tools/report-template-tools";
 import { researchKeywordsTool } from "@/server/mcp/tools/research-keywords";
 import { saveKeywordsTool } from "@/server/mcp/tools/save-keywords";
 import {
@@ -213,6 +217,8 @@ export function createOpenSeoMcpServer(authProps: McpProps) {
   register(saveReportTool);
   register(listReportsTool);
   register(getReportTool);
+  register(listReportTemplatesTool);
+  register(saveReportTemplateTool);
 
   return server;
 }

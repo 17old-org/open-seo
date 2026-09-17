@@ -63,6 +63,8 @@ Deliver through the `seo-report` skill, saving with `skill: "keyword-clustering"
 
 `h1`: the site or keyword set.
 
+If a report template applies (see `seo-report`), its sections and tone replace this list.
+
 Sections in this order:
 
 1. **The map** — one or two opening sentences: how many clusters, how many pages to create, how many to update, and any cannibalization found.

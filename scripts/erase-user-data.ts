@@ -297,6 +297,11 @@ async function buildInventory(db: Db, user: UserRow) {
       schema.reports,
       eq(schema.reports.createdByUserId, user.id),
     ),
+    report_templates: await projectCount(schema.reportTemplates),
+    attributed_report_templates: await db.$count(
+      schema.reportTemplates,
+      eq(schema.reportTemplates.createdByUserId, user.id),
+    ),
     gsc_connections: await db.$count(
       schema.gscConnections,
       eq(schema.gscConnections.connectedByUserId, user.id),
@@ -504,6 +509,10 @@ async function erasePostgres(db: Db, user: UserRow, organizationIds: string[]) {
       .update(schema.reports)
       .set({ createdByUserId: "gdpr-deleted-user" })
       .where(eq(schema.reports.createdByUserId, user.id));
+    await tx
+      .update(schema.reportTemplates)
+      .set({ createdByUserId: "gdpr-deleted-user" })
+      .where(eq(schema.reportTemplates.createdByUserId, user.id));
     if (organizationIds.length > 0) {
       // Re-assert the solo-membership guard at delete time: anyone who
       // accepted an invite after the inventory was taken must abort the

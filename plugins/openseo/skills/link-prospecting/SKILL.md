@@ -96,6 +96,8 @@ Use `get_serp_results` in batches for the most relevant patterns. Send at most 1
 
 `h1`: the linkable asset.
 
+If a report template applies (see `seo-report`), its sections and tone replace this list.
+
 Sections in this order:
 
 1. **The angle** — one or two opening sentences naming the best outreach angle and the prospect type to work first.

@@ -36,6 +36,8 @@ type SaveReportParams = {
   summary: string;
   html: string;
   skill?: string;
+  /** Validated against the project by the caller, not here. */
+  templateId?: string;
   /** Client label, stamped by the server. Never taken from the model. */
   createdBy: string;
   /** From the authenticated context, and nowhere else. */
@@ -148,8 +150,10 @@ export async function saveReport(params: SaveReportParams): Promise<{
       html,
       // An update that omits the slug keeps the stored one: `skill` is
       // optional on save_report, and clearing it would drop the report out of
-      // the list's Skill column for no reason the caller asked for.
+      // the list's Type column for no reason the caller asked for.
       skill: params.skill ?? existing.skill,
+      // Same rule for the template the report was written from.
+      templateId: params.templateId ?? existing.templateId,
       sizeBytes,
     });
     return {
@@ -168,6 +172,7 @@ export async function saveReport(params: SaveReportParams): Promise<{
     summary,
     html,
     skill: params.skill ?? null,
+    templateId: params.templateId ?? null,
     createdBy: params.createdBy,
     createdByUserId: params.createdByUserId,
     sizeBytes,

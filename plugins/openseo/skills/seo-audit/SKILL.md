@@ -60,6 +60,8 @@ Keep total spend modest: one audit, one backlinks overview, at most one domain o
 
 `h1`: the domain. Then one or two opening sentences: the overall state and the one thing.
 
+If a report template applies (see `seo-report`), its sections and tone replace this list.
+
 Sections in this order:
 
 1. **Verdict** — three to five bullets, one line each: the state of the site, the numbers that matter (pages crawled and indexable, search terms and estimated visits, linking sites), and the biggest gap. No prose.

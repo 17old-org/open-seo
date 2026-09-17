@@ -64,6 +64,8 @@ Always build the profile snapshot table for the whole chain — one `search_loca
 
 `h1`: the business name.
 
+If a report template applies (see `seo-report`), its sections and tone replace this list.
+
 Sections in this order:
 
 1. **Snapshot** — one or two opening sentences, then a table of category, rating, review count, and claimed status. One row per location for a chain.

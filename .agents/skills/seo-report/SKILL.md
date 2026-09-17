@@ -1,6 +1,6 @@
 ---
 name: seo-report
-description: "Write an OpenSEO report as one self-contained HTML page and save it to the project with save_report. Use whenever a skill has finished its research and owes the user a deliverable."
+description: "Write and save an OpenSEO report as one self-contained HTML page. Use when a skill has finished its research, and whenever the user asks for a report, check-in, or summary, or names a report template."
 ---
 
 # OpenSEO Report
@@ -16,6 +16,12 @@ Every OpenSEO skill that produces a recommendation delivers through this skill. 
 1. Call `list_reports` for the project. If a report already covers the same subject for the same period, you are correcting your own run: pass its `reportId` to `save_report` and replace it. A new month, a new competitor, or a different skill is a new report. Never save a near-duplicate.
 2. Titles are unique within a project. Saving a second report under an existing title with no `reportId` is rejected, so either pass the `reportId` of the report you are replacing or change the title to name the new subject or period.
 3. To revise an existing report, work from its summary. `get_report` returns the HTML only with `includeHtml: true`, and an 80 KB report is roughly 20,000 tokens, which most clients truncate. Fetch the HTML only when you need to edit a specific passage, and if what comes back looks cut off, send the user to the app instead of saving over it.
+
+## Following a template
+
+A project can carry report templates: named, reusable briefs saying who a report is for, which sections it has in what order, how it should sound, and how to sign off. They are listed in project context, and `list_report_templates` returns the full instructions for each one. Templates belong to a project. To reuse one in another project, list it there and save a copy here.
+
+Use a template only when the user names it, or asks for the kind of report a template's name or description names. A plain skill run ("audit this site") uses the skill's default format. If two match, ask in one line. A template's sections, audience and tone replace the skill's Output format list; the HTML constraints and writing rules never change. Project writing_preferences always apply; a template's tone wins only where they conflict. Pass its `templateId` to `save_report`.
 
 ## Writing rules
 
@@ -64,7 +70,10 @@ Copy this, keep the CSS as it is, and replace the ALL-CAPS placeholders. Each pr
    which has its own theme toggle, and a saved document has no way to hear about
    it: a report that follows the OS scheme alone shows a black panel inside a
    light app for anyone whose two settings disagree. */
-:root{--bg:#fff;--fg:#0a0a0a;--fg-2:#454545;--fg-3:#8f8f8f;--rule:#ebebeb;--rule-2:#dcdcdc;--sunk:#fafafa}
+:root{--bg:#fff;--fg:#0a0a0a;--fg-2:#454545;--fg-3:#8f8f8f;--rule:#ebebeb;--rule-2:#dcdcdc;--sunk:#fafafa;
+  /* The one token a report template may change. Left as the text color, so a
+     report with no template looks exactly as it did before. */
+  --accent:var(--fg)}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{background:var(--bg);color:var(--fg);margin:0;padding:0 24px 120px;font-size:18px;line-height:1.65;letter-spacing:-.003em;
@@ -92,7 +101,7 @@ h2{font-size:30px;font-weight:600;letter-spacing:-.025em;line-height:1.2;margin:
 h3{font-size:20px;font-weight:600;letter-spacing:-.015em;margin:38px 0 14px}
 .finding{list-style:none;padding:0;margin:0 0 26px}
 .finding li{margin:0 0 8px;color:var(--fg-2)}
-.finding b{color:var(--fg);font-weight:600}
+.finding b{color:var(--accent);font-weight:600}
 a{color:var(--fg);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule-2)}
 strong{font-weight:600}
 code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86em;background:var(--sunk);border:1px solid var(--rule);padding:1px 5px;border-radius:4px}
@@ -113,7 +122,7 @@ figcaption{font-size:14px;color:var(--fg-3);margin-top:8px}
 .bars{display:grid;grid-template-columns:minmax(90px,170px) 1fr auto;gap:10px 12px;align-items:center;font-size:14px}
 .bars .label{color:var(--fg-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bars .track{display:block;height:20px;background:var(--sunk)}
-.bars .bar{display:block;height:100%;background:var(--fg);opacity:.16}
+.bars .bar{display:block;height:100%;background:var(--accent);opacity:.16}
 .bars .value{font-variant-numeric:tabular-nums;min-width:3ch;text-align:right}
 svg{display:block;max-width:100%;height:auto}
 hr{border:none;border-top:1px solid var(--rule);margin:60px 0}
@@ -215,7 +224,7 @@ footer{max-width:660px;margin:64px 0 0;padding:26px 0 0;border-top:1px solid var
 ## Guardrails
 
 - Do not narrate the run in chat. Three bullets and the link is the ceiling, not the floor.
-- Do not restyle the template per report. One look, kept good, is the point.
+- Do not restyle the template per report. One look, kept good, is the point. A report template may set `--accent`, the byline (for example `Prepared for NAME` or a `Prepared by` sign-off), and the footer; nothing else in the CSS changes.
 - Do not paste the report body into chat, and do not offer to write it to a local file instead. The report lives in the project.
 - Do not save a report into a project you were not asked about. `save_report` takes the `projectId` the skill is already working in.
 - Do not invent a number to fill a table cell. Write `unknown` and say why in a `.note`.

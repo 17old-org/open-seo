@@ -50,6 +50,9 @@ export type ReportMetadata = {
   title: string;
   summary: string;
   skill: string | null;
+  /** The report template the agent followed, or null. Unresolved: the name is
+   *  looked up project-scoped by the reader that needs it. */
+  templateId: string | null;
   createdBy: string;
   createdByUserId: string;
   /** UTF-8 byte length of the stored document. */

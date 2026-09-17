@@ -46,6 +46,17 @@ const toolCategories: ToolCategory[] = [
         title: "Get a report",
         description: "Read one report's summary, and its HTML when needed.",
       },
+      {
+        name: "list_report_templates",
+        title: "List report templates",
+        description:
+          "See this project's report templates, and the brief each one carries.",
+      },
+      {
+        name: "save_report_template",
+        title: "Save a report template",
+        description: "Save a reusable report brief to this project.",
+      },
     ],
   },
   {

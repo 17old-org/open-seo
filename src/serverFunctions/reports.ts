@@ -3,6 +3,7 @@ import { omit } from "remeda";
 import { z } from "zod";
 import { AuthRepository } from "@/server/auth/repositories/AuthRepository";
 import { ReportService } from "@/server/features/reports/services/ReportService";
+import { ReportTemplateService } from "@/server/features/reports/services/ReportTemplateService";
 import { requireProjectContext } from "@/serverFunctions/middleware";
 import {
   REPORT_APP_LIST_LIMIT,
@@ -39,18 +40,29 @@ export type ReportListItem = Omit<ReportMetadata, "summary"> & {
    * label alone.
    */
   createdByName: string | null;
+  /** The template's name, or null when the report followed none or its id no longer resolves in this project. */
+  templateName: string | null;
 };
 
-// One lookup for all savers, not one per row.
-async function withCreatorNames(
+// One lookup for all savers and one for all templates, not one per row. The
+// project's whole template list is the name lookup: it is capped at ten rows.
+async function withDisplayNames(
   reports: ReportMetadata[],
+  projectId: string,
 ): Promise<ReportListItem[]> {
   const userIds = [...new Set(reports.map((report) => report.createdByUserId))];
-  const users = await AuthRepository.getHostedUserNames(userIds);
+  const [users, { templates }] = await Promise.all([
+    AuthRepository.getHostedUserNames(userIds),
+    ReportTemplateService.listReportTemplates(projectId),
+  ]);
   const names = new Map(users.map((user) => [user.id, user.name]));
+  const templateNames = new Map(templates.map((t) => [t.id, t.name]));
   return reports.map((report) => ({
     ...omit(report, ["summary"]),
     createdByName: names.get(report.createdByUserId) ?? null,
+    templateName: report.templateId
+      ? (templateNames.get(report.templateId) ?? null)
+      : null,
   }));
 }
 
@@ -66,7 +78,9 @@ export const listReports = createServerFn({ method: "POST" })
     // Neither `remaining` nor `totalCount` is returned: the page shows the
     // most recent REPORT_APP_LIST_LIMIT reports and says so when it is full,
     // and the caps are runaway guards nobody needs a running tally against.
-    return { reports: await withCreatorNames(result.reports) };
+    return {
+      reports: await withDisplayNames(result.reports, context.projectId),
+    };
   });
 
 /** Metadata only. The document itself is served by /r/<reportId>. */
@@ -78,8 +92,8 @@ export const getReport = createServerFn({ method: "POST" })
       context.projectId,
       data.reportId,
     );
-    const [withName] = await withCreatorNames([report]);
-    return withName;
+    const [withNames] = await withDisplayNames([report], context.projectId);
+    return withNames;
   });
 
 export const deleteReport = createServerFn({ method: "POST" })

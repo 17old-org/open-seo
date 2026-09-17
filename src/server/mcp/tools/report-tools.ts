@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ReportService } from "@/server/features/reports/services/ReportService";
+import { ReportTemplateService } from "@/server/features/reports/services/ReportTemplateService";
 import { captureServerEvent } from "@/server/lib/posthog";
 import { DEFAULT_CLIENT_LABEL } from "@/server/mcp/client-label";
 import { buildProjectMeta } from "@/server/mcp/context";
@@ -80,6 +81,13 @@ const saveInputSchema = {
     .describe(
       'The slug of the skill that produced this report — the name of the SKILL.md you are running, e.g. "seo-audit". The report list keys on it, so a save without it shows "—".',
     ),
+  templateId: z
+    .string()
+    .min(1)
+    .optional()
+    .describe(
+      "The id of the report template you followed, from list_report_templates or the project context. Pass it only when you actually followed that template; it is what the report list and the report page show instead of the skill slug.",
+    ),
 } as const;
 
 const saveOutputSchema = {
@@ -108,6 +116,15 @@ export const saveReportTool = {
   },
   handler: withMcpProjectAuth(
     async (args: z.infer<z.ZodObject<typeof saveInputSchema>>, context) => {
+      // Resolved against the authorized project before the save: an id from
+      // another project must not be stored, and a dangling one would render
+      // as no template at all.
+      if (args.templateId) {
+        await ReportTemplateService.getReportTemplate(
+          args.projectId,
+          args.templateId,
+        );
+      }
       const saved = await ReportService.saveReport({
         projectId: args.projectId,
         organizationId: context.auth.organizationId,
@@ -116,6 +133,7 @@ export const saveReportTool = {
         summary: args.summary,
         html: args.html,
         skill: args.skill,
+        templateId: args.templateId,
         // Never taken from the model: the label the transport derived from the
         // request.
         createdBy: context.auth.clientLabel ?? DEFAULT_CLIENT_LABEL,
@@ -132,6 +150,7 @@ export const saveReportTool = {
         properties: {
           project_id: args.projectId,
           skill: args.skill,
+          used_template: Boolean(args.templateId),
           size_bytes: saved.htmlBytes,
           client: context.auth.clientLabel,
           is_update: !saved.created,

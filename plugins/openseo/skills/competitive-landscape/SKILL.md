@@ -67,6 +67,8 @@ Deliver through the `seo-report` skill, saving with `skill: "competitive-landsca
 
 `h1`: the market or category.
 
+If a report template applies (see `seo-report`), its sections and tone replace this list.
+
 Sections in this order:
 
 1. **The market read** — one or two opening sentences naming the leaders, the most winnable area, and the biggest barrier.

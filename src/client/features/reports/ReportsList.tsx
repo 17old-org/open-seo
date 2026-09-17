@@ -34,7 +34,7 @@ export function ReportsList({
             <tr>
               <th>Title</th>
               <th>Created by</th>
-              <th>Skill</th>
+              <th>Type</th>
               <th>Updated</th>
               <th></th>
             </tr>
@@ -54,7 +54,12 @@ export function ReportsList({
                 <td className="text-base-content/70">
                   {formatCreatedBy(report)}
                 </td>
-                <td className="text-base-content/70">{report.skill ?? "—"}</td>
+                {/* The template the report was written from, else the skill
+                    that produced it: what a reader needs to tell two reports
+                    on the same site apart. */}
+                <td className="text-base-content/70">
+                  {report.templateName ?? report.skill ?? "—"}
+                </td>
                 <td className="whitespace-nowrap text-base-content/70">
                   {formatRelativeTime(report.updatedAt)}
                 </td>

@@ -16,6 +16,7 @@ const metadataColumns = {
   title: reports.title,
   summary: reports.summary,
   skill: reports.skill,
+  templateId: reports.templateId,
   createdBy: reports.createdBy,
   createdByUserId: reports.createdByUserId,
   sizeBytes: reports.sizeBytes,
@@ -136,6 +137,7 @@ async function insertReport(params: {
   summary: string;
   html: string;
   skill: string | null;
+  templateId: string | null;
   createdBy: string;
   createdByUserId: string;
   sizeBytes: number;
@@ -156,6 +158,7 @@ async function updateReportContent(params: {
   summary: string;
   html: string;
   skill: string | null;
+  templateId: string | null;
   sizeBytes: number;
 }): Promise<void> {
   await db
@@ -165,6 +168,7 @@ async function updateReportContent(params: {
       summary: params.summary,
       html: params.html,
       skill: params.skill,
+      templateId: params.templateId,
       sizeBytes: params.sizeBytes,
       updatedAt: new Date().toISOString(),
     })

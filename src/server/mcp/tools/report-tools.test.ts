@@ -16,6 +16,7 @@ const mocks = vi.hoisted(() => ({
   sumReportBytesForOrganization: vi.fn(),
   insertReport: vi.fn(),
   updateReportContent: vi.fn(),
+  getTemplate: vi.fn(),
   captureServerEvent: vi.fn(),
 }));
 
@@ -28,6 +29,10 @@ vi.mock("@/server/features/projects/services/ProjectService", () => ({
 vi.mock("@/server/features/reports/repositories/ReportRepository", () => ({
   ReportRepository: mocks,
 }));
+vi.mock(
+  "@/server/features/reports/repositories/ReportTemplateRepository",
+  () => ({ ReportTemplateRepository: mocks }),
+);
 vi.mock("@/server/lib/posthog", () => ({
   captureServerEvent: mocks.captureServerEvent,
 }));
@@ -55,6 +60,7 @@ beforeEach(() => {
   mocks.countReports.mockResolvedValue(3);
   mocks.sumReportBytesForOrganization.mockResolvedValue(0);
   mocks.findReportByTitle.mockResolvedValue(null);
+  mocks.getTemplate.mockResolvedValue(null);
   mocks.captureServerEvent.mockResolvedValue(undefined);
 });
 
@@ -93,6 +99,7 @@ describe("save_report", () => {
         properties: {
           project_id: projectId,
           skill: "seo-audit",
+          used_template: false,
           size_bytes: new TextEncoder().encode(html).length,
           client: "Claude Code",
           is_update: false,
@@ -121,6 +128,24 @@ describe("save_report", () => {
       expect.objectContaining({ reportId, projectId }),
     );
     expect(result.structuredContent.created).toBe(false);
+  });
+
+  it("refuses a templateId that does not resolve in this project", async () => {
+    // The template lookup is project-scoped, so another project's template
+    // reads exactly like a deleted one.
+    await expect(
+      saveReportTool.handler(
+        {
+          projectId,
+          title: "badseo.dev SEO audit, Sep 2026",
+          summary: "Verdict: titles are the problem.",
+          html,
+          templateId: "template_other_project",
+        },
+        toolContext,
+      ),
+    ).rejects.toThrow(/No report template template_other_project/);
+    expect(mocks.insertReport).not.toHaveBeenCalled();
   });
 
   it("passes a service refusal through with its message", async () => {
