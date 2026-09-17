@@ -57,6 +57,14 @@ export type ReportMetadata = {
   createdByUserId: string;
   /** UTF-8 byte length of the stored document. */
   sizeBytes: number;
+  /**
+   * The public share token, or null when the report is not shared. The app
+   * builds the link from it (`<origin>/s/<token>`) rather than storing a URL,
+   * so the same row works on the hosted domain and a self-hosted one.
+   */
+  shareToken: string | null;
+  /** When the current share token was minted, or null when not shared. */
+  sharedAt: string | null;
   createdAt: string;
   updatedAt: string;
 };

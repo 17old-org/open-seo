@@ -1,6 +1,6 @@
 import { Pencil, Trash2 } from "lucide-react";
 import { PortalMenu } from "@/client/components/PortalMenu";
-import { formatRelativeTime } from "@/client/features/reports/shared";
+import { formatRelativeTime } from "@/client/lib/relative-time";
 import type { ReportTemplate } from "@/types/schemas/report-templates";
 
 export function ReportTemplatesList({

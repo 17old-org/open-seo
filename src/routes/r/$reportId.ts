@@ -5,7 +5,7 @@ import { resolveUserContextFromHeaders } from "@/middleware/ensure-user/resolve"
 import { ProjectRepository } from "@/server/features/projects/repositories/ProjectRepository";
 import { ReportRepository } from "@/server/features/reports/repositories/ReportRepository";
 import { asAppError } from "@/server/lib/errors";
-import { PRINT_SCRIPT, reportCsp, textResponse } from "@/shared/report-sandbox";
+import { reportDocumentResponse, textResponse } from "@/shared/report-sandbox";
 
 // The report viewer: the stored document, served byte for byte from the app's
 // own origin and locked down by REPORT_CSP. A raw-Response route, so no React
@@ -19,24 +19,6 @@ const NOT_FOUND_BODY =
   "This report does not exist or you do not have access to it.";
 
 const reportNotFound = () => textResponse(NOT_FOUND_BODY, 404);
-
-/**
- * Appends PRINT_SCRIPT to a stored document, last so it runs after the page.
- * The splice happens without parsing a document we did not write, so a report
- * ending in a dangling `<script src="…" ` absorbs whatever we put on our tag;
- * an attribute-free tag gives such a document nothing but a valueless
- * attribute name, and printing simply no-ops there.
- */
-function withPrintScript(html: string): string {
-  const tag = `<script>${PRINT_SCRIPT}</script>`;
-  const bodyClose = html.lastIndexOf("</body>");
-  if (bodyClose !== -1)
-    return html.slice(0, bodyClose) + tag + html.slice(bodyClose);
-  const htmlClose = html.lastIndexOf("</html>");
-  if (htmlClose !== -1)
-    return html.slice(0, htmlClose) + tag + html.slice(htmlClose);
-  return html + tag;
-}
 
 async function handleReportRequest(
   reportId: string,
@@ -100,20 +82,9 @@ async function handleReportRequest(
   // the browser's print dialog itself.
   const print = new URL(request.url).searchParams.get("print") === "1";
 
-  return new Response(print ? withPrintScript(html) : html, {
-    status: 200,
-    headers: {
-      "Content-Type": "text/html; charset=utf-8",
-      "Content-Security-Policy": reportCsp(print),
-      // The sandbox allows popups to escape, so a link in a report opens a real
-      // page that would otherwise keep a handle on this tab and be able to
-      // navigate it. COOP severs that handle. Ignored when framed, which is
-      // what the in-app viewer wants.
-      "Cross-Origin-Opener-Policy": "same-origin",
-      "Referrer-Policy": "no-referrer",
-      "X-Content-Type-Options": "nosniff",
-      "Cache-Control": "private, no-store",
-    },
+  return reportDocumentResponse(html, {
+    print,
+    cacheControl: "private, no-store",
   });
 }
 

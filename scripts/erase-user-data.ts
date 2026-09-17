@@ -302,6 +302,13 @@ async function buildInventory(db: Db, user: UserRow) {
       schema.reportTemplates,
       eq(schema.reportTemplates.createdByUserId, user.id),
     ),
+    shared_reports: await db.$count(
+      schema.reports,
+      and(
+        eq(schema.reports.createdByUserId, user.id),
+        isNotNull(schema.reports.shareToken),
+      ),
+    ),
     gsc_connections: await db.$count(
       schema.gscConnections,
       eq(schema.gscConnections.connectedByUserId, user.id),
@@ -505,9 +512,16 @@ async function erasePostgres(db: Db, user: UserRow, organizationIds: string[]) {
       .where(eq(schema.audits.startedByUserId, user.id));
     // reports.created_by_user_id has no FK either (same reason as audits), so a
     // surviving multi-member org keeps its reports with the attribution wiped.
+    // Any public link on a report they created is revoked in the same
+    // statement: the link is a capability published from their work, and it
+    // must not outlive them.
     await tx
       .update(schema.reports)
-      .set({ createdByUserId: "gdpr-deleted-user" })
+      .set({
+        createdByUserId: "gdpr-deleted-user",
+        shareToken: null,
+        sharedAt: null,
+      })
       .where(eq(schema.reports.createdByUserId, user.id));
     await tx
       .update(schema.reportTemplates)

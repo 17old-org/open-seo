@@ -96,6 +96,37 @@ export const getReport = createServerFn({ method: "POST" })
     return withNames;
   });
 
+/**
+ * Mints (or returns) the report's public link. The token alone comes back —
+ * the app builds `<origin>/s/<token>` client-side, so the same server works on
+ * app.openseo.so and a self-hosted hostname without knowing either.
+ */
+export const shareReport = createServerFn({ method: "POST" })
+  .middleware(requireProjectContext)
+  .validator(reportRefSchema)
+  .handler(async ({ data, context }) => {
+    const report = await ReportService.shareReport({
+      projectId: context.projectId,
+      reportId: data.reportId,
+      userId: context.userId,
+      organizationId: context.organizationId,
+    });
+    return { shareToken: report.shareToken, sharedAt: report.sharedAt };
+  });
+
+export const unshareReport = createServerFn({ method: "POST" })
+  .middleware(requireProjectContext)
+  .validator(reportRefSchema)
+  .handler(async ({ data, context }) => {
+    const report = await ReportService.unshareReport({
+      projectId: context.projectId,
+      reportId: data.reportId,
+      userId: context.userId,
+      organizationId: context.organizationId,
+    });
+    return { shareToken: report.shareToken, sharedAt: report.sharedAt };
+  });
+
 export const deleteReport = createServerFn({ method: "POST" })
   .middleware(requireProjectContext)
   .validator(reportRefSchema)

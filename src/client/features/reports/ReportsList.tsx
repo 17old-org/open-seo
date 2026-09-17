@@ -1,10 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 import { PortalMenu } from "@/client/components/PortalMenu";
-import {
-  formatCreatedBy,
-  formatRelativeTime,
-} from "@/client/features/reports/shared";
+import { formatCreatedBy } from "@/client/features/reports/shared";
+import { formatRelativeTime } from "@/client/lib/relative-time";
 import type { ReportListItem } from "@/serverFunctions/reports";
 import { REPORT_APP_LIST_LIMIT } from "@/types/schemas/reports";
 

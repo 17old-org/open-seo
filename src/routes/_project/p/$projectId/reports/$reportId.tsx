@@ -5,6 +5,8 @@ import {
   ChevronLeft,
   ExternalLink,
   FileDown,
+  Globe,
+  Lock,
   Maximize2,
   Minimize2,
   MoreHorizontal,
@@ -16,10 +18,12 @@ import { ReportViewer } from "@/client/features/reports/ReportViewer";
 import {
   DeleteReportModal,
   formatCreatedBy,
-  formatRelativeTime,
   reportQueryKey,
+  ShareReportModal,
   useDeleteReport,
 } from "@/client/features/reports/shared";
+import { formatRelativeTime } from "@/client/lib/relative-time";
+import { isHostedClientAuthMode } from "@/lib/auth-mode";
 import {
   getErrorCode,
   getStandardErrorMessage,
@@ -40,9 +44,11 @@ export const Route = createFileRoute(
 
 function ReportDetailPage() {
   const { projectId, reportId } = Route.useParams();
+  const hosted = isHostedClientAuthMode();
   const { full } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const [showDelete, setShowDelete] = useState(false);
+  const [showShare, setShowShare] = useState(false);
   const openedRef = useRef<string | null>(null);
   const exitRef = useRef<HTMLButtonElement>(null);
 
@@ -144,6 +150,16 @@ function ReportDetailPage() {
     );
   }
 
+  // `?print=1` serves the same document with a print() script appended, so the
+  // new tab opens the print dialog itself.
+  const exportPdf = () => {
+    captureClientEvent("report:exported_pdf", {
+      project_id: projectId,
+      report_id: report.id,
+    });
+    window.open(`/r/${report.id}?print=1`, "_blank", "noopener");
+  };
+
   if (full) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col bg-base-100">
@@ -204,22 +220,34 @@ function ReportDetailPage() {
             </dl>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <button
-              type="button"
-              className="btn btn-primary btn-sm gap-1.5"
-              onClick={() => {
-                captureClientEvent("report:exported_pdf", {
-                  project_id: projectId,
-                  report_id: report.id,
-                });
-                // `?print=1` serves the same document with a print() script
-                // appended, so the new tab opens the print dialog itself.
-                window.open(`/r/${report.id}?print=1`, "_blank", "noopener");
-              }}
-            >
-              <FileDown className="size-4" />
-              Export
-            </button>
+            {/* Share links are hosted-only (see shareAccess.ts), so a
+                self-hosted deployment keeps Export as its primary action
+                rather than offering a button the server would refuse. The
+                icon carries the state: a globe once a public link is live, a
+                lock while only members can open it. */}
+            {hosted ? (
+              <button
+                type="button"
+                className="btn btn-primary btn-sm gap-1.5"
+                onClick={() => setShowShare(true)}
+              >
+                {report.shareToken ? (
+                  <Globe className="size-4" />
+                ) : (
+                  <Lock className="size-4" />
+                )}
+                Share
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-primary btn-sm gap-1.5"
+                onClick={exportPdf}
+              >
+                <FileDown className="size-4" />
+                Export
+              </button>
+            )}
             <PortalMenu
               ariaLabel="Report actions"
               triggerClassName="btn btn-ghost btn-sm btn-square"
@@ -228,6 +256,19 @@ function ReportDetailPage() {
             >
               {(close) => (
                 <>
+                  {hosted ? (
+                    <li>
+                      <button
+                        onClick={() => {
+                          close();
+                          exportPdf();
+                        }}
+                      >
+                        <FileDown className="size-4" />
+                        Export
+                      </button>
+                    </li>
+                  ) : null}
                   <li>
                     <button
                       onClick={() => {
@@ -273,6 +314,10 @@ function ReportDetailPage() {
       <div className="min-h-0 flex-1">
         <ReportViewer src={`/r/${report.id}`} title={report.title} />
       </div>
+
+      {hosted && showShare ? (
+        <ShareReportModal report={report} onClose={() => setShowShare(false)} />
+      ) : null}
 
       {showDelete ? (
         <DeleteReportModal

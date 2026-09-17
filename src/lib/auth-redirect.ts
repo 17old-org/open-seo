@@ -80,7 +80,8 @@ export function getCurrentAuthRedirectFromHref(href: string) {
  * one lands the user on a blank page. Navigate to these with a document load.
  */
 export function isDocumentRoute(redirectTo: string) {
-  // Every componentless server-handler route must reload; /r/ is the only one.
+  // Every componentless route the app can navigate to must reload; /r/ is the
+  // only one (/s/<token>/raw is never a router destination).
   return redirectTo.startsWith("/r/");
 }
 

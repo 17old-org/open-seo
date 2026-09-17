@@ -1,9 +1,18 @@
+import { formatRelativeTime } from "@/client/lib/relative-time";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Copy, ExternalLink, X } from "lucide-react";
 import { toast } from "sonner";
 import { ConfirmDeleteModal } from "@/client/components/ConfirmDeleteModal";
+import { Modal } from "@/client/components/Modal";
 import { getStandardErrorMessage } from "@/client/lib/error-messages";
 import { captureClientEvent } from "@/client/lib/posthog";
-import { deleteReport, type ReportListItem } from "@/serverFunctions/reports";
+import {
+  deleteReport,
+  shareReport,
+  unshareReport,
+  type ReportListItem,
+} from "@/serverFunctions/reports";
+import { sharePath } from "@/shared/report-share";
 
 // Query keys for both reports pages. staleTime is 0 wherever these are used:
 // the pages exist to inspect what an agent just wrote, so the app-wide
@@ -13,27 +22,6 @@ export const reportsQueryKey = (projectId: string) =>
 
 export const reportQueryKey = (projectId: string, reportId: string) =>
   ["report", projectId, reportId] as const;
-
-const RELATIVE_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
-  ["year", 365 * 24 * 60 * 60 * 1000],
-  ["month", 30 * 24 * 60 * 60 * 1000],
-  ["day", 24 * 60 * 60 * 1000],
-  ["hour", 60 * 60 * 1000],
-  ["minute", 60 * 1000],
-];
-
-/** "3 hours ago" for an ISO timestamp; "just now" under a minute. */
-export function formatRelativeTime(iso: string): string {
-  const then = new Date(iso).getTime();
-  if (Number.isNaN(then)) return "";
-  const diff = then - Date.now();
-  const absolute = Math.abs(diff);
-  const formatter = new Intl.RelativeTimeFormat("en-US", { numeric: "auto" });
-  for (const [unit, ms] of RELATIVE_UNITS) {
-    if (absolute >= ms) return formatter.format(Math.round(diff / ms), unit);
-  }
-  return "just now";
-}
 
 /**
  * "Ben · Claude Code". The person is the half that means something (it comes
@@ -100,5 +88,158 @@ export function DeleteReportModal({
       onClose={onClose}
       onConfirm={onConfirm}
     />
+  );
+}
+
+/**
+ * The share toggle. The link is built from the browser's own origin, so the
+ * same report shares correctly from app.openseo.so and from a self-hosted
+ * hostname without the server knowing either.
+ */
+export function ShareReportModal({
+  report,
+  onClose,
+}: {
+  report: Pick<
+    ReportListItem,
+    "id" | "projectId" | "title" | "shareToken" | "sharedAt"
+  >;
+  onClose: () => void;
+}) {
+  const queryClient = useQueryClient();
+  const { projectId, id: reportId } = report;
+  // Share and unshare in one mutation, keyed by the state the toggle is moving
+  // to. The response is written straight into the report query so the modal
+  // shows the new link without waiting for a refetch; the list is invalidated
+  // because its rows carry the same metadata.
+  const mutation = useMutation({
+    mutationFn: (shared: boolean) =>
+      shared
+        ? shareReport({ data: { projectId, reportId } })
+        : unshareReport({ data: { projectId, reportId } }),
+    onSuccess: (result) => {
+      // No client event here: the service already captures report:shared and
+      // report:unshared server-side, and a second one would double the count.
+      queryClient.setQueryData(
+        reportQueryKey(projectId, reportId),
+        (previous: ReportListItem | undefined) =>
+          previous ? { ...previous, ...result } : previous,
+      );
+      void queryClient.invalidateQueries({
+        queryKey: reportsQueryKey(projectId),
+      });
+    },
+  });
+  // The toggle follows the click while the mutation is in flight — a round
+  // trip that leaves the switch sitting in its old position reads as broken.
+  const shared = Boolean(report.shareToken);
+  const url = report.shareToken
+    ? `${window.location.origin}${sharePath(report.shareToken)}`
+    : "";
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied");
+    } catch {
+      toast.error("Clipboard not available");
+    }
+  };
+
+  return (
+    <Modal
+      onClose={onClose}
+      labelledBy="share-report-title"
+      maxWidth="max-w-lg"
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h3 id="share-report-title" className="text-base font-semibold">
+            Share
+          </h3>
+          <p className="truncate text-sm text-base-content/60">
+            {report.title}
+          </p>
+        </div>
+        <button
+          type="button"
+          className="btn btn-ghost btn-sm btn-square -mr-2 -mt-1"
+          aria-label="Close"
+          onClick={onClose}
+        >
+          <X className="size-4" />
+        </button>
+      </div>
+
+      <div className="rounded-lg border border-base-300">
+        <label className="flex cursor-pointer items-center justify-between gap-4 p-4">
+          <span className="min-w-0">
+            <span className="block text-sm font-medium">Public link</span>
+            <span className="block text-xs text-base-content/60">
+              {shared
+                ? "Anyone with the link can view. No sign-in needed."
+                : "Only members of your organization can open it."}
+            </span>
+          </span>
+          <input
+            type="checkbox"
+            className="toggle toggle-primary"
+            checked={mutation.isPending ? mutation.variables : shared}
+            disabled={mutation.isPending}
+            onChange={(event) => mutation.mutate(event.target.checked)}
+          />
+        </label>
+
+        {shared ? (
+          <div className="space-y-3 border-t border-base-300 p-4">
+            {/* The field wraps onto its own line when the row gets narrow, so
+                the link stays readable on a phone instead of shrinking. */}
+            <div className="flex flex-wrap items-stretch gap-2">
+              <input
+                readOnly
+                value={url}
+                aria-label="Share link"
+                onFocus={(event) => event.target.select()}
+                className="input input-sm input-bordered min-w-0 flex-1 basis-64 text-sm"
+              />
+              <div className="ml-auto flex items-stretch">
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Open link"
+                  title="Open"
+                  className="btn btn-sm btn-ghost rounded-r-none border border-r-0 border-base-300"
+                >
+                  <ExternalLink className="size-4" />
+                </a>
+                <button
+                  type="button"
+                  onClick={() => void copy()}
+                  className="btn btn-sm btn-primary rounded-l-none"
+                >
+                  <Copy className="size-4" />
+                  Copy link
+                </button>
+              </div>
+            </div>
+            <p className="text-xs text-base-content/50">
+              Shows the latest saved version. Hidden from search engines.
+              {report.sharedAt
+                ? ` Link created ${formatRelativeTime(report.sharedAt)}.`
+                : ""}
+            </p>
+          </div>
+        ) : null}
+      </div>
+
+      {/* Shown in place rather than as a toast: the message belongs next to
+          the toggle that would not move. */}
+      {mutation.isError ? (
+        <p className="text-sm text-error">
+          {getStandardErrorMessage(mutation.error, "Failed to update sharing")}
+        </p>
+      ) : null}
+    </Modal>
   );
 }

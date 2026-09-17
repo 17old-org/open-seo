@@ -80,3 +80,50 @@ export function textResponse(body: string, status: number): Response {
     },
   });
 }
+
+/**
+ * Appends PRINT_SCRIPT to a stored document, last so it runs after the page.
+ * The splice happens without parsing a document we did not write, so a report
+ * ending in a dangling `<script src="…" ` absorbs whatever we put on our tag;
+ * an attribute-free tag gives such a document nothing but a valueless
+ * attribute name, and printing simply no-ops there.
+ */
+function withPrintScript(html: string): string {
+  const tag = `<script>${PRINT_SCRIPT}</script>`;
+  const bodyClose = html.lastIndexOf("</body>");
+  if (bodyClose !== -1)
+    return html.slice(0, bodyClose) + tag + html.slice(bodyClose);
+  const htmlClose = html.lastIndexOf("</html>");
+  if (htmlClose !== -1)
+    return html.slice(0, htmlClose) + tag + html.slice(htmlClose);
+  return html + tag;
+}
+
+/**
+ * The one response both report documents are served with — `/r/<id>` for a
+ * member and `/s/<token>/raw` for a link holder — so the sandbox, the print
+ * script and the header set cannot drift between them. Only the cache scope
+ * and the robots tag differ: the public document is the one search engines
+ * could reach.
+ */
+export function reportDocumentResponse(
+  html: string,
+  options: { print?: boolean; cacheControl: string; noindex?: boolean },
+): Response {
+  return new Response(options.print ? withPrintScript(html) : html, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Content-Security-Policy": reportCsp(options.print),
+      // The sandbox allows popups to escape, so a link in a report opens a
+      // real page that would otherwise keep a handle on this tab and be able
+      // to navigate it. COOP severs that handle. Ignored when framed, which is
+      // what both viewers want.
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Referrer-Policy": "no-referrer",
+      "X-Content-Type-Options": "nosniff",
+      ...(options.noindex ? { "X-Robots-Tag": "noindex, nofollow" } : {}),
+      "Cache-Control": options.cacheControl,
+    },
+  });
+}
