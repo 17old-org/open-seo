@@ -4,18 +4,20 @@ import {
   aiAgentSeoStrategies,
   competitiveAnalysisStrategies,
   keywordResearchStrategies,
+  linkBuildingStrategies,
   rankTrackingStrategies,
   siteAuditStrategies,
 } from "@/lib/strategy-libraries";
 
 const PATH = "/library";
 const description =
-  "Browse practical SEO strategies for finding search demand, sizing up competitors, auditing a site, tracking rankings, running SEO through an AI agent, mapping intent, and planning pages.";
+  "Browse practical SEO strategies for finding search demand, sizing up competitors, auditing a site, tracking rankings, building links, running SEO through an AI agent, mapping intent, and planning pages.";
 const featuredStrategies = [
   ...keywordResearchStrategies.slice(0, 2),
   ...competitiveAnalysisStrategies.slice(0, 1),
   ...siteAuditStrategies.slice(0, 1),
   ...rankTrackingStrategies.slice(0, 1),
+  ...linkBuildingStrategies.slice(0, 1),
   ...aiAgentSeoStrategies.slice(0, 1),
 ];
 
@@ -115,6 +117,23 @@ function StrategyLibraryIndexPage() {
             </p>
             <p className="mt-5 text-sm font-medium text-neutral-950">
               View all {rankTrackingStrategies.length} strategies{" "}
+              <span aria-hidden="true">&rarr;</span>
+            </p>
+          </a>
+          <a
+            href="/library/link-building"
+            className="block rounded-lg border border-[var(--color-border-subtle)] bg-white p-6 transition-colors hover:border-neutral-900"
+          >
+            <h3 className="text-2xl font-semibold tracking-tight text-neutral-950">
+              Link Building
+            </h3>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--color-brand-muted)]">
+              Read a backlink profile without trusting the score, report the
+              number that moves rankings, and earn links from the pages that
+              already get them.
+            </p>
+            <p className="mt-5 text-sm font-medium text-neutral-950">
+              View all {linkBuildingStrategies.length} strategies{" "}
               <span aria-hidden="true">&rarr;</span>
             </p>
           </a>

@@ -175,3 +175,29 @@ export const aiAgentSeoStrategies: StrategyLibraryItem[] = [
     href: "/library/ai-agent-seo/skills-memory-and-the-trace",
   },
 ];
+
+export const LINK_BUILDING_LIBRARY = {
+  name: "Link Building",
+  path: "/library/link-building",
+};
+
+export const linkBuildingStrategies: StrategyLibraryItem[] = [
+  {
+    title: "The backlink audit: sort by first seen, then by relevance",
+    description:
+      "The three newest links to a real site were a casino domain and two link sellers. Underneath them were the links that count. How to tell them apart in an hour.",
+    href: "/library/link-building/backlink-audit",
+  },
+  {
+    title: "Referring domains, not backlinks: the count that moves rankings",
+    description:
+      "2,393 backlinks, 308 referring domains, 872 from one site the owner also runs. Why the second number is the one to report.",
+    href: "/library/link-building/referring-domains",
+  },
+  {
+    title: "How to get backlinks: start from the pages that already earn them",
+    description:
+      "A free calculator with links from 17 domains, a park-cleanup page with 270 backlinks. Neither was pitched. Four plays that earned links on tape.",
+    href: "/library/link-building/how-to-get-backlinks",
+  },
+];
