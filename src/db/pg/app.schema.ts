@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  bigint,
   boolean,
   index,
   integer,
@@ -8,6 +9,7 @@ import {
   serial,
   text,
   uniqueIndex,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 import { organization, user } from "./better-auth-schema";
 
@@ -259,6 +261,10 @@ export const rankTrackingKeywords = pgTable(
       .notNull()
       .references(() => rankTrackingConfigs.id, { onDelete: "cascade" }),
     keyword: text("keyword").notNull(),
+    // Keywords are lowercased on add unless this is set, in which case the
+    // keyword is stored and searched exactly as typed. Google can return a
+    // different SERP for "Nodex" than for "nodex".
+    matchCase: boolean("match_case").notNull().default(false),
     searchVolume: integer("search_volume"),
     keywordDifficulty: integer("keyword_difficulty"),
     cpc: real("cpc"),
@@ -372,6 +378,9 @@ export const projectActivationState = pgTable("project_activation_state", {
   // without faking the org-level first-tool-call milestone, which stays
   // truthful and self-heals when a real external call lands.
   mcpCardDismissedAt: timestampColumn("mcp_card_dismissed_at"),
+  // Optional integration pitch: hiding it from the dashboard does not remove
+  // the GA4 connection controls from Project Settings.
+  ga4CardDismissedAt: timestampColumn("ga4_card_dismissed_at"),
   updatedAt: timestampColumn("updated_at").notNull().default(isoNow),
 });
 
@@ -389,13 +398,13 @@ export const backlinkSnapshots = pgTable(
       .references(() => projects.id, { onDelete: "cascade" }),
     domain: text("domain").notNull(),
     rank: integer("rank"),
-    backlinks: integer("backlinks"),
-    referringDomains: integer("referring_domains"),
-    brokenBacklinks: integer("broken_backlinks"),
-    newBacklinks: integer("new_backlinks"),
-    lostBacklinks: integer("lost_backlinks"),
-    newReferringDomains: integer("new_referring_domains"),
-    lostReferringDomains: integer("lost_referring_domains"),
+    backlinks: bigint("backlinks", { mode: "number" }),
+    referringDomains: bigint("referring_domains", { mode: "number" }),
+    brokenBacklinks: bigint("broken_backlinks", { mode: "number" }),
+    newBacklinks: bigint("new_backlinks", { mode: "number" }),
+    lostBacklinks: bigint("lost_backlinks", { mode: "number" }),
+    newReferringDomains: bigint("new_referring_domains", { mode: "number" }),
+    lostReferringDomains: bigint("lost_referring_domains", { mode: "number" }),
     capturedAt: timestampColumn("captured_at").notNull().default(isoNow),
   },
   (table) => [
@@ -403,5 +412,23 @@ export const backlinkSnapshots = pgTable(
       table.projectId,
       table.capturedAt,
     ),
+  ],
+);
+
+// Personal checklist preferences; completion remains derived from product state.
+export const dashboardStepDismissals = pgTable(
+  "dashboard_step_dismissals",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    step: text("step").notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.projectId, table.step] }),
+    index("dashboard_step_dismissals_project_idx").on(table.projectId),
   ],
 );

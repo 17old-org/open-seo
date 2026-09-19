@@ -22,9 +22,14 @@ import { Route as DocsSplatRouteImport } from './routes/docs/$'
 import { Route as BlogsSplatRouteImport } from './routes/blogs/$'
 import { Route as ApiSubscribeRouteImport } from './routes/api/subscribe'
 import { Route as ApiEventRouteImport } from './routes/api/event'
+import { Route as ApiBacklinkCheckRouteImport } from './routes/api/backlink-check'
+import { Route as MarketingSupportRouteImport } from './routes/_marketing/support'
+import { Route as MarketingRoadmapRouteImport } from './routes/_marketing/roadmap'
 import { Route as MarketingPricingRouteImport } from './routes/_marketing/pricing'
 import { Route as MarketingOpenSourceSeoRouteImport } from './routes/_marketing/open-source-seo'
 import { Route as MarketingGoogleSearchConsoleMcpRouteImport } from './routes/_marketing/google-search-console-mcp'
+import { Route as MarketingBacklinkCheckerRouteImport } from './routes/_marketing/backlink-checker'
+import { Route as MarketingLibraryIndexRouteImport } from './routes/_marketing/library/index'
 import { Route as MarketingFeaturesIndexRouteImport } from './routes/_marketing/features/index'
 import { Route as MarketingFeaturesSiteAuditRouteImport } from './routes/_marketing/features/site-audit'
 import { Route as MarketingFeaturesSavedKeywordsRouteImport } from './routes/_marketing/features/saved-keywords'
@@ -32,14 +37,42 @@ import { Route as MarketingFeaturesRankTrackingRouteImport } from './routes/_mar
 import { Route as MarketingFeaturesMcpRouteImport } from './routes/_marketing/features/mcp'
 import { Route as MarketingFeaturesKeywordResearchRouteImport } from './routes/_marketing/features/keyword-research'
 import { Route as MarketingFeaturesDomainOverviewRouteImport } from './routes/_marketing/features/domain-overview'
+import { Route as MarketingFeaturesBacklinksRouteImport } from './routes/_marketing/features/backlinks'
 import { Route as MarketingFeaturesBacklinkCheckerRouteImport } from './routes/_marketing/features/backlink-checker'
 import { Route as MarketingFeaturesAiSearchPromptsRouteImport } from './routes/_marketing/features/ai-search-prompts'
 import { Route as MarketingFeaturesAiBrandVisibilityRouteImport } from './routes/_marketing/features/ai-brand-visibility'
+import { Route as MarketingLibrarySiteAuditIndexRouteImport } from './routes/_marketing/library/site-audit/index'
+import { Route as MarketingLibraryRankTrackingIndexRouteImport } from './routes/_marketing/library/rank-tracking/index'
+import { Route as MarketingLibraryLinkBuildingIndexRouteImport } from './routes/_marketing/library/link-building/index'
 import { Route as MarketingLibraryKeywordResearchIndexRouteImport } from './routes/_marketing/library/keyword-research/index'
+import { Route as MarketingLibraryCompetitiveAnalysisIndexRouteImport } from './routes/_marketing/library/competitive-analysis/index'
+import { Route as MarketingLibraryAiAgentSeoIndexRouteImport } from './routes/_marketing/library/ai-agent-seo/index'
+import { Route as MarketingLibrarySiteAuditTechnicalSeoAuditChecklistRouteImport } from './routes/_marketing/library/site-audit/technical-seo-audit-checklist'
+import { Route as MarketingLibrarySiteAuditSeoAuditReportTemplateRouteImport } from './routes/_marketing/library/site-audit/seo-audit-report-template'
+import { Route as MarketingLibrarySiteAuditIndexBloatRouteImport } from './routes/_marketing/library/site-audit/index-bloat'
+import { Route as MarketingLibraryRankTrackingWhichKeywordsToTrackRouteImport } from './routes/_marketing/library/rank-tracking/which-keywords-to-track'
+import { Route as MarketingLibraryRankTrackingSearchConsoleVsRankTrackerRouteImport } from './routes/_marketing/library/rank-tracking/search-console-vs-rank-tracker'
+import { Route as MarketingLibraryRankTrackingLocalRankTrackingRouteImport } from './routes/_marketing/library/rank-tracking/local-rank-tracking'
+import { Route as MarketingLibraryRankTrackingKeywordRankingReportRouteImport } from './routes/_marketing/library/rank-tracking/keyword-ranking-report'
+import { Route as MarketingLibraryLinkBuildingReferringDomainsRouteImport } from './routes/_marketing/library/link-building/referring-domains'
+import { Route as MarketingLibraryLinkBuildingHowToGetBacklinksRouteImport } from './routes/_marketing/library/link-building/how-to-get-backlinks'
+import { Route as MarketingLibraryLinkBuildingBacklinkAuditRouteImport } from './routes/_marketing/library/link-building/backlink-audit'
 import { Route as MarketingLibraryKeywordResearchSeedFromConversationRouteImport } from './routes/_marketing/library/keyword-research/seed-from-conversation'
 import { Route as MarketingLibraryKeywordResearchSearchIntentMappingRouteImport } from './routes/_marketing/library/keyword-research/search-intent-mapping'
+import { Route as MarketingLibraryKeywordResearchPositioningToDemandRouteImport } from './routes/_marketing/library/keyword-research/positioning-to-demand'
+import { Route as MarketingLibraryKeywordResearchOpportunitySizingForecastingRouteImport } from './routes/_marketing/library/keyword-research/opportunity-sizing-forecasting'
 import { Route as MarketingLibraryKeywordResearchLongTailQuestionMiningRouteImport } from './routes/_marketing/library/keyword-research/long-tail-question-mining'
+import { Route as MarketingLibraryKeywordResearchIntentBeyondGoogleRouteImport } from './routes/_marketing/library/keyword-research/intent-beyond-google'
+import { Route as MarketingLibraryKeywordResearchGscProgrammaticDiscoveryRouteImport } from './routes/_marketing/library/keyword-research/gsc-programmatic-discovery'
 import { Route as MarketingLibraryKeywordResearchClusterTopicalHubsRouteImport } from './routes/_marketing/library/keyword-research/cluster-topical-hubs'
+import { Route as MarketingLibraryCompetitiveAnalysisKeywordGapAnalysisRouteImport } from './routes/_marketing/library/competitive-analysis/keyword-gap-analysis'
+import { Route as MarketingLibraryCompetitiveAnalysisFindYourRealCompetitorsRouteImport } from './routes/_marketing/library/competitive-analysis/find-your-real-competitors'
+import { Route as MarketingLibraryCompetitiveAnalysisCompetitorTrafficEstimatesRouteImport } from './routes/_marketing/library/competitive-analysis/competitor-traffic-estimates'
+import { Route as MarketingLibraryCompetitiveAnalysisBacklinkGapAnalysisRouteImport } from './routes/_marketing/library/competitive-analysis/backlink-gap-analysis'
+import { Route as MarketingLibraryAiAgentSeoWhatToAutomateRouteImport } from './routes/_marketing/library/ai-agent-seo/what-to-automate'
+import { Route as MarketingLibraryAiAgentSeoSkillsMemoryAndTheTraceRouteImport } from './routes/_marketing/library/ai-agent-seo/skills-memory-and-the-trace'
+import { Route as MarketingLibraryAiAgentSeoRunSeoFromYourAiAssistantRouteImport } from './routes/_marketing/library/ai-agent-seo/run-seo-from-your-ai-assistant'
+import { Route as MarketingLibraryAiAgentSeoHumanInTheLoopContentRouteImport } from './routes/_marketing/library/ai-agent-seo/human-in-the-loop-content'
 
 const TermsAndConditionsRoute = TermsAndConditionsRouteImport.update({
   id: '/terms-and-conditions',
@@ -105,6 +138,21 @@ const ApiEventRoute = ApiEventRouteImport.update({
   path: '/api/event',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBacklinkCheckRoute = ApiBacklinkCheckRouteImport.update({
+  id: '/api/backlink-check',
+  path: '/api/backlink-check',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketingSupportRoute = MarketingSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => MarketingRoute,
+} as any)
+const MarketingRoadmapRoute = MarketingRoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
+  getParentRoute: () => MarketingRoute,
+} as any)
 const MarketingPricingRoute = MarketingPricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
@@ -121,6 +169,17 @@ const MarketingGoogleSearchConsoleMcpRoute =
     path: '/google-search-console-mcp',
     getParentRoute: () => MarketingRoute,
   } as any)
+const MarketingBacklinkCheckerRoute =
+  MarketingBacklinkCheckerRouteImport.update({
+    id: '/backlink-checker',
+    path: '/backlink-checker',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryIndexRoute = MarketingLibraryIndexRouteImport.update({
+  id: '/library/',
+  path: '/library/',
+  getParentRoute: () => MarketingRoute,
+} as any)
 const MarketingFeaturesIndexRoute = MarketingFeaturesIndexRouteImport.update({
   id: '/features/',
   path: '/features/',
@@ -161,6 +220,12 @@ const MarketingFeaturesDomainOverviewRoute =
     path: '/features/domain-overview',
     getParentRoute: () => MarketingRoute,
   } as any)
+const MarketingFeaturesBacklinksRoute =
+  MarketingFeaturesBacklinksRouteImport.update({
+    id: '/features/backlinks',
+    path: '/features/backlinks',
+    getParentRoute: () => MarketingRoute,
+  } as any)
 const MarketingFeaturesBacklinkCheckerRoute =
   MarketingFeaturesBacklinkCheckerRouteImport.update({
     id: '/features/backlink-checker',
@@ -179,10 +244,100 @@ const MarketingFeaturesAiBrandVisibilityRoute =
     path: '/features/ai-brand-visibility',
     getParentRoute: () => MarketingRoute,
   } as any)
+const MarketingLibrarySiteAuditIndexRoute =
+  MarketingLibrarySiteAuditIndexRouteImport.update({
+    id: '/library/site-audit/',
+    path: '/library/site-audit/',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryRankTrackingIndexRoute =
+  MarketingLibraryRankTrackingIndexRouteImport.update({
+    id: '/library/rank-tracking/',
+    path: '/library/rank-tracking/',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryLinkBuildingIndexRoute =
+  MarketingLibraryLinkBuildingIndexRouteImport.update({
+    id: '/library/link-building/',
+    path: '/library/link-building/',
+    getParentRoute: () => MarketingRoute,
+  } as any)
 const MarketingLibraryKeywordResearchIndexRoute =
   MarketingLibraryKeywordResearchIndexRouteImport.update({
     id: '/library/keyword-research/',
     path: '/library/keyword-research/',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryCompetitiveAnalysisIndexRoute =
+  MarketingLibraryCompetitiveAnalysisIndexRouteImport.update({
+    id: '/library/competitive-analysis/',
+    path: '/library/competitive-analysis/',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryAiAgentSeoIndexRoute =
+  MarketingLibraryAiAgentSeoIndexRouteImport.update({
+    id: '/library/ai-agent-seo/',
+    path: '/library/ai-agent-seo/',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibrarySiteAuditTechnicalSeoAuditChecklistRoute =
+  MarketingLibrarySiteAuditTechnicalSeoAuditChecklistRouteImport.update({
+    id: '/library/site-audit/technical-seo-audit-checklist',
+    path: '/library/site-audit/technical-seo-audit-checklist',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibrarySiteAuditSeoAuditReportTemplateRoute =
+  MarketingLibrarySiteAuditSeoAuditReportTemplateRouteImport.update({
+    id: '/library/site-audit/seo-audit-report-template',
+    path: '/library/site-audit/seo-audit-report-template',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibrarySiteAuditIndexBloatRoute =
+  MarketingLibrarySiteAuditIndexBloatRouteImport.update({
+    id: '/library/site-audit/index-bloat',
+    path: '/library/site-audit/index-bloat',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryRankTrackingWhichKeywordsToTrackRoute =
+  MarketingLibraryRankTrackingWhichKeywordsToTrackRouteImport.update({
+    id: '/library/rank-tracking/which-keywords-to-track',
+    path: '/library/rank-tracking/which-keywords-to-track',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryRankTrackingSearchConsoleVsRankTrackerRoute =
+  MarketingLibraryRankTrackingSearchConsoleVsRankTrackerRouteImport.update({
+    id: '/library/rank-tracking/search-console-vs-rank-tracker',
+    path: '/library/rank-tracking/search-console-vs-rank-tracker',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryRankTrackingLocalRankTrackingRoute =
+  MarketingLibraryRankTrackingLocalRankTrackingRouteImport.update({
+    id: '/library/rank-tracking/local-rank-tracking',
+    path: '/library/rank-tracking/local-rank-tracking',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryRankTrackingKeywordRankingReportRoute =
+  MarketingLibraryRankTrackingKeywordRankingReportRouteImport.update({
+    id: '/library/rank-tracking/keyword-ranking-report',
+    path: '/library/rank-tracking/keyword-ranking-report',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryLinkBuildingReferringDomainsRoute =
+  MarketingLibraryLinkBuildingReferringDomainsRouteImport.update({
+    id: '/library/link-building/referring-domains',
+    path: '/library/link-building/referring-domains',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryLinkBuildingHowToGetBacklinksRoute =
+  MarketingLibraryLinkBuildingHowToGetBacklinksRouteImport.update({
+    id: '/library/link-building/how-to-get-backlinks',
+    path: '/library/link-building/how-to-get-backlinks',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryLinkBuildingBacklinkAuditRoute =
+  MarketingLibraryLinkBuildingBacklinkAuditRouteImport.update({
+    id: '/library/link-building/backlink-audit',
+    path: '/library/link-building/backlink-audit',
     getParentRoute: () => MarketingRoute,
   } as any)
 const MarketingLibraryKeywordResearchSeedFromConversationRoute =
@@ -197,10 +352,36 @@ const MarketingLibraryKeywordResearchSearchIntentMappingRoute =
     path: '/library/keyword-research/search-intent-mapping',
     getParentRoute: () => MarketingRoute,
   } as any)
+const MarketingLibraryKeywordResearchPositioningToDemandRoute =
+  MarketingLibraryKeywordResearchPositioningToDemandRouteImport.update({
+    id: '/library/keyword-research/positioning-to-demand',
+    path: '/library/keyword-research/positioning-to-demand',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryKeywordResearchOpportunitySizingForecastingRoute =
+  MarketingLibraryKeywordResearchOpportunitySizingForecastingRouteImport.update(
+    {
+      id: '/library/keyword-research/opportunity-sizing-forecasting',
+      path: '/library/keyword-research/opportunity-sizing-forecasting',
+      getParentRoute: () => MarketingRoute,
+    } as any,
+  )
 const MarketingLibraryKeywordResearchLongTailQuestionMiningRoute =
   MarketingLibraryKeywordResearchLongTailQuestionMiningRouteImport.update({
     id: '/library/keyword-research/long-tail-question-mining',
     path: '/library/keyword-research/long-tail-question-mining',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryKeywordResearchIntentBeyondGoogleRoute =
+  MarketingLibraryKeywordResearchIntentBeyondGoogleRouteImport.update({
+    id: '/library/keyword-research/intent-beyond-google',
+    path: '/library/keyword-research/intent-beyond-google',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryKeywordResearchGscProgrammaticDiscoveryRoute =
+  MarketingLibraryKeywordResearchGscProgrammaticDiscoveryRouteImport.update({
+    id: '/library/keyword-research/gsc-programmatic-discovery',
+    path: '/library/keyword-research/gsc-programmatic-discovery',
     getParentRoute: () => MarketingRoute,
   } as any)
 const MarketingLibraryKeywordResearchClusterTopicalHubsRoute =
@@ -209,14 +390,68 @@ const MarketingLibraryKeywordResearchClusterTopicalHubsRoute =
     path: '/library/keyword-research/cluster-topical-hubs',
     getParentRoute: () => MarketingRoute,
   } as any)
+const MarketingLibraryCompetitiveAnalysisKeywordGapAnalysisRoute =
+  MarketingLibraryCompetitiveAnalysisKeywordGapAnalysisRouteImport.update({
+    id: '/library/competitive-analysis/keyword-gap-analysis',
+    path: '/library/competitive-analysis/keyword-gap-analysis',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryCompetitiveAnalysisFindYourRealCompetitorsRoute =
+  MarketingLibraryCompetitiveAnalysisFindYourRealCompetitorsRouteImport.update({
+    id: '/library/competitive-analysis/find-your-real-competitors',
+    path: '/library/competitive-analysis/find-your-real-competitors',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryCompetitiveAnalysisCompetitorTrafficEstimatesRoute =
+  MarketingLibraryCompetitiveAnalysisCompetitorTrafficEstimatesRouteImport.update(
+    {
+      id: '/library/competitive-analysis/competitor-traffic-estimates',
+      path: '/library/competitive-analysis/competitor-traffic-estimates',
+      getParentRoute: () => MarketingRoute,
+    } as any,
+  )
+const MarketingLibraryCompetitiveAnalysisBacklinkGapAnalysisRoute =
+  MarketingLibraryCompetitiveAnalysisBacklinkGapAnalysisRouteImport.update({
+    id: '/library/competitive-analysis/backlink-gap-analysis',
+    path: '/library/competitive-analysis/backlink-gap-analysis',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryAiAgentSeoWhatToAutomateRoute =
+  MarketingLibraryAiAgentSeoWhatToAutomateRouteImport.update({
+    id: '/library/ai-agent-seo/what-to-automate',
+    path: '/library/ai-agent-seo/what-to-automate',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryAiAgentSeoSkillsMemoryAndTheTraceRoute =
+  MarketingLibraryAiAgentSeoSkillsMemoryAndTheTraceRouteImport.update({
+    id: '/library/ai-agent-seo/skills-memory-and-the-trace',
+    path: '/library/ai-agent-seo/skills-memory-and-the-trace',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryAiAgentSeoRunSeoFromYourAiAssistantRoute =
+  MarketingLibraryAiAgentSeoRunSeoFromYourAiAssistantRouteImport.update({
+    id: '/library/ai-agent-seo/run-seo-from-your-ai-assistant',
+    path: '/library/ai-agent-seo/run-seo-from-your-ai-assistant',
+    getParentRoute: () => MarketingRoute,
+  } as any)
+const MarketingLibraryAiAgentSeoHumanInTheLoopContentRoute =
+  MarketingLibraryAiAgentSeoHumanInTheLoopContentRouteImport.update({
+    id: '/library/ai-agent-seo/human-in-the-loop-content',
+    path: '/library/ai-agent-seo/human-in-the-loop-content',
+    getParentRoute: () => MarketingRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof MarketingIndexRoute
   '/privacy': typeof PrivacyRoute
   '/terms-and-conditions': typeof TermsAndConditionsRoute
+  '/backlink-checker': typeof MarketingBacklinkCheckerRoute
   '/google-search-console-mcp': typeof MarketingGoogleSearchConsoleMcpRoute
   '/open-source-seo': typeof MarketingOpenSourceSeoRoute
   '/pricing': typeof MarketingPricingRoute
+  '/roadmap': typeof MarketingRoadmapRoute
+  '/support': typeof MarketingSupportRoute
+  '/api/backlink-check': typeof ApiBacklinkCheckRoute
   '/api/event': typeof ApiEventRoute
   '/api/subscribe': typeof ApiSubscribeRoute
   '/blogs/$': typeof BlogsSplatRoute
@@ -229,6 +464,7 @@ export interface FileRoutesByFullPath {
   '/features/ai-brand-visibility': typeof MarketingFeaturesAiBrandVisibilityRoute
   '/features/ai-search-prompts': typeof MarketingFeaturesAiSearchPromptsRoute
   '/features/backlink-checker': typeof MarketingFeaturesBacklinkCheckerRoute
+  '/features/backlinks': typeof MarketingFeaturesBacklinksRoute
   '/features/domain-overview': typeof MarketingFeaturesDomainOverviewRoute
   '/features/keyword-research': typeof MarketingFeaturesKeywordResearchRoute
   '/features/mcp': typeof MarketingFeaturesMcpRoute
@@ -236,18 +472,50 @@ export interface FileRoutesByFullPath {
   '/features/saved-keywords': typeof MarketingFeaturesSavedKeywordsRoute
   '/features/site-audit': typeof MarketingFeaturesSiteAuditRoute
   '/features/': typeof MarketingFeaturesIndexRoute
+  '/library/': typeof MarketingLibraryIndexRoute
+  '/library/ai-agent-seo/human-in-the-loop-content': typeof MarketingLibraryAiAgentSeoHumanInTheLoopContentRoute
+  '/library/ai-agent-seo/run-seo-from-your-ai-assistant': typeof MarketingLibraryAiAgentSeoRunSeoFromYourAiAssistantRoute
+  '/library/ai-agent-seo/skills-memory-and-the-trace': typeof MarketingLibraryAiAgentSeoSkillsMemoryAndTheTraceRoute
+  '/library/ai-agent-seo/what-to-automate': typeof MarketingLibraryAiAgentSeoWhatToAutomateRoute
+  '/library/competitive-analysis/backlink-gap-analysis': typeof MarketingLibraryCompetitiveAnalysisBacklinkGapAnalysisRoute
+  '/library/competitive-analysis/competitor-traffic-estimates': typeof MarketingLibraryCompetitiveAnalysisCompetitorTrafficEstimatesRoute
+  '/library/competitive-analysis/find-your-real-competitors': typeof MarketingLibraryCompetitiveAnalysisFindYourRealCompetitorsRoute
+  '/library/competitive-analysis/keyword-gap-analysis': typeof MarketingLibraryCompetitiveAnalysisKeywordGapAnalysisRoute
   '/library/keyword-research/cluster-topical-hubs': typeof MarketingLibraryKeywordResearchClusterTopicalHubsRoute
+  '/library/keyword-research/gsc-programmatic-discovery': typeof MarketingLibraryKeywordResearchGscProgrammaticDiscoveryRoute
+  '/library/keyword-research/intent-beyond-google': typeof MarketingLibraryKeywordResearchIntentBeyondGoogleRoute
   '/library/keyword-research/long-tail-question-mining': typeof MarketingLibraryKeywordResearchLongTailQuestionMiningRoute
+  '/library/keyword-research/opportunity-sizing-forecasting': typeof MarketingLibraryKeywordResearchOpportunitySizingForecastingRoute
+  '/library/keyword-research/positioning-to-demand': typeof MarketingLibraryKeywordResearchPositioningToDemandRoute
   '/library/keyword-research/search-intent-mapping': typeof MarketingLibraryKeywordResearchSearchIntentMappingRoute
   '/library/keyword-research/seed-from-conversation': typeof MarketingLibraryKeywordResearchSeedFromConversationRoute
+  '/library/link-building/backlink-audit': typeof MarketingLibraryLinkBuildingBacklinkAuditRoute
+  '/library/link-building/how-to-get-backlinks': typeof MarketingLibraryLinkBuildingHowToGetBacklinksRoute
+  '/library/link-building/referring-domains': typeof MarketingLibraryLinkBuildingReferringDomainsRoute
+  '/library/rank-tracking/keyword-ranking-report': typeof MarketingLibraryRankTrackingKeywordRankingReportRoute
+  '/library/rank-tracking/local-rank-tracking': typeof MarketingLibraryRankTrackingLocalRankTrackingRoute
+  '/library/rank-tracking/search-console-vs-rank-tracker': typeof MarketingLibraryRankTrackingSearchConsoleVsRankTrackerRoute
+  '/library/rank-tracking/which-keywords-to-track': typeof MarketingLibraryRankTrackingWhichKeywordsToTrackRoute
+  '/library/site-audit/index-bloat': typeof MarketingLibrarySiteAuditIndexBloatRoute
+  '/library/site-audit/seo-audit-report-template': typeof MarketingLibrarySiteAuditSeoAuditReportTemplateRoute
+  '/library/site-audit/technical-seo-audit-checklist': typeof MarketingLibrarySiteAuditTechnicalSeoAuditChecklistRoute
+  '/library/ai-agent-seo/': typeof MarketingLibraryAiAgentSeoIndexRoute
+  '/library/competitive-analysis/': typeof MarketingLibraryCompetitiveAnalysisIndexRoute
   '/library/keyword-research/': typeof MarketingLibraryKeywordResearchIndexRoute
+  '/library/link-building/': typeof MarketingLibraryLinkBuildingIndexRoute
+  '/library/rank-tracking/': typeof MarketingLibraryRankTrackingIndexRoute
+  '/library/site-audit/': typeof MarketingLibrarySiteAuditIndexRoute
 }
 export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/terms-and-conditions': typeof TermsAndConditionsRoute
+  '/backlink-checker': typeof MarketingBacklinkCheckerRoute
   '/google-search-console-mcp': typeof MarketingGoogleSearchConsoleMcpRoute
   '/open-source-seo': typeof MarketingOpenSourceSeoRoute
   '/pricing': typeof MarketingPricingRoute
+  '/roadmap': typeof MarketingRoadmapRoute
+  '/support': typeof MarketingSupportRoute
+  '/api/backlink-check': typeof ApiBacklinkCheckRoute
   '/api/event': typeof ApiEventRoute
   '/api/subscribe': typeof ApiSubscribeRoute
   '/blogs/$': typeof BlogsSplatRoute
@@ -261,6 +529,7 @@ export interface FileRoutesByTo {
   '/features/ai-brand-visibility': typeof MarketingFeaturesAiBrandVisibilityRoute
   '/features/ai-search-prompts': typeof MarketingFeaturesAiSearchPromptsRoute
   '/features/backlink-checker': typeof MarketingFeaturesBacklinkCheckerRoute
+  '/features/backlinks': typeof MarketingFeaturesBacklinksRoute
   '/features/domain-overview': typeof MarketingFeaturesDomainOverviewRoute
   '/features/keyword-research': typeof MarketingFeaturesKeywordResearchRoute
   '/features/mcp': typeof MarketingFeaturesMcpRoute
@@ -268,20 +537,52 @@ export interface FileRoutesByTo {
   '/features/saved-keywords': typeof MarketingFeaturesSavedKeywordsRoute
   '/features/site-audit': typeof MarketingFeaturesSiteAuditRoute
   '/features': typeof MarketingFeaturesIndexRoute
+  '/library': typeof MarketingLibraryIndexRoute
+  '/library/ai-agent-seo/human-in-the-loop-content': typeof MarketingLibraryAiAgentSeoHumanInTheLoopContentRoute
+  '/library/ai-agent-seo/run-seo-from-your-ai-assistant': typeof MarketingLibraryAiAgentSeoRunSeoFromYourAiAssistantRoute
+  '/library/ai-agent-seo/skills-memory-and-the-trace': typeof MarketingLibraryAiAgentSeoSkillsMemoryAndTheTraceRoute
+  '/library/ai-agent-seo/what-to-automate': typeof MarketingLibraryAiAgentSeoWhatToAutomateRoute
+  '/library/competitive-analysis/backlink-gap-analysis': typeof MarketingLibraryCompetitiveAnalysisBacklinkGapAnalysisRoute
+  '/library/competitive-analysis/competitor-traffic-estimates': typeof MarketingLibraryCompetitiveAnalysisCompetitorTrafficEstimatesRoute
+  '/library/competitive-analysis/find-your-real-competitors': typeof MarketingLibraryCompetitiveAnalysisFindYourRealCompetitorsRoute
+  '/library/competitive-analysis/keyword-gap-analysis': typeof MarketingLibraryCompetitiveAnalysisKeywordGapAnalysisRoute
   '/library/keyword-research/cluster-topical-hubs': typeof MarketingLibraryKeywordResearchClusterTopicalHubsRoute
+  '/library/keyword-research/gsc-programmatic-discovery': typeof MarketingLibraryKeywordResearchGscProgrammaticDiscoveryRoute
+  '/library/keyword-research/intent-beyond-google': typeof MarketingLibraryKeywordResearchIntentBeyondGoogleRoute
   '/library/keyword-research/long-tail-question-mining': typeof MarketingLibraryKeywordResearchLongTailQuestionMiningRoute
+  '/library/keyword-research/opportunity-sizing-forecasting': typeof MarketingLibraryKeywordResearchOpportunitySizingForecastingRoute
+  '/library/keyword-research/positioning-to-demand': typeof MarketingLibraryKeywordResearchPositioningToDemandRoute
   '/library/keyword-research/search-intent-mapping': typeof MarketingLibraryKeywordResearchSearchIntentMappingRoute
   '/library/keyword-research/seed-from-conversation': typeof MarketingLibraryKeywordResearchSeedFromConversationRoute
+  '/library/link-building/backlink-audit': typeof MarketingLibraryLinkBuildingBacklinkAuditRoute
+  '/library/link-building/how-to-get-backlinks': typeof MarketingLibraryLinkBuildingHowToGetBacklinksRoute
+  '/library/link-building/referring-domains': typeof MarketingLibraryLinkBuildingReferringDomainsRoute
+  '/library/rank-tracking/keyword-ranking-report': typeof MarketingLibraryRankTrackingKeywordRankingReportRoute
+  '/library/rank-tracking/local-rank-tracking': typeof MarketingLibraryRankTrackingLocalRankTrackingRoute
+  '/library/rank-tracking/search-console-vs-rank-tracker': typeof MarketingLibraryRankTrackingSearchConsoleVsRankTrackerRoute
+  '/library/rank-tracking/which-keywords-to-track': typeof MarketingLibraryRankTrackingWhichKeywordsToTrackRoute
+  '/library/site-audit/index-bloat': typeof MarketingLibrarySiteAuditIndexBloatRoute
+  '/library/site-audit/seo-audit-report-template': typeof MarketingLibrarySiteAuditSeoAuditReportTemplateRoute
+  '/library/site-audit/technical-seo-audit-checklist': typeof MarketingLibrarySiteAuditTechnicalSeoAuditChecklistRoute
+  '/library/ai-agent-seo': typeof MarketingLibraryAiAgentSeoIndexRoute
+  '/library/competitive-analysis': typeof MarketingLibraryCompetitiveAnalysisIndexRoute
   '/library/keyword-research': typeof MarketingLibraryKeywordResearchIndexRoute
+  '/library/link-building': typeof MarketingLibraryLinkBuildingIndexRoute
+  '/library/rank-tracking': typeof MarketingLibraryRankTrackingIndexRoute
+  '/library/site-audit': typeof MarketingLibrarySiteAuditIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_marketing': typeof MarketingRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/terms-and-conditions': typeof TermsAndConditionsRoute
+  '/_marketing/backlink-checker': typeof MarketingBacklinkCheckerRoute
   '/_marketing/google-search-console-mcp': typeof MarketingGoogleSearchConsoleMcpRoute
   '/_marketing/open-source-seo': typeof MarketingOpenSourceSeoRoute
   '/_marketing/pricing': typeof MarketingPricingRoute
+  '/_marketing/roadmap': typeof MarketingRoadmapRoute
+  '/_marketing/support': typeof MarketingSupportRoute
+  '/api/backlink-check': typeof ApiBacklinkCheckRoute
   '/api/event': typeof ApiEventRoute
   '/api/subscribe': typeof ApiSubscribeRoute
   '/blogs/$': typeof BlogsSplatRoute
@@ -295,6 +596,7 @@ export interface FileRoutesById {
   '/_marketing/features/ai-brand-visibility': typeof MarketingFeaturesAiBrandVisibilityRoute
   '/_marketing/features/ai-search-prompts': typeof MarketingFeaturesAiSearchPromptsRoute
   '/_marketing/features/backlink-checker': typeof MarketingFeaturesBacklinkCheckerRoute
+  '/_marketing/features/backlinks': typeof MarketingFeaturesBacklinksRoute
   '/_marketing/features/domain-overview': typeof MarketingFeaturesDomainOverviewRoute
   '/_marketing/features/keyword-research': typeof MarketingFeaturesKeywordResearchRoute
   '/_marketing/features/mcp': typeof MarketingFeaturesMcpRoute
@@ -302,11 +604,39 @@ export interface FileRoutesById {
   '/_marketing/features/saved-keywords': typeof MarketingFeaturesSavedKeywordsRoute
   '/_marketing/features/site-audit': typeof MarketingFeaturesSiteAuditRoute
   '/_marketing/features/': typeof MarketingFeaturesIndexRoute
+  '/_marketing/library/': typeof MarketingLibraryIndexRoute
+  '/_marketing/library/ai-agent-seo/human-in-the-loop-content': typeof MarketingLibraryAiAgentSeoHumanInTheLoopContentRoute
+  '/_marketing/library/ai-agent-seo/run-seo-from-your-ai-assistant': typeof MarketingLibraryAiAgentSeoRunSeoFromYourAiAssistantRoute
+  '/_marketing/library/ai-agent-seo/skills-memory-and-the-trace': typeof MarketingLibraryAiAgentSeoSkillsMemoryAndTheTraceRoute
+  '/_marketing/library/ai-agent-seo/what-to-automate': typeof MarketingLibraryAiAgentSeoWhatToAutomateRoute
+  '/_marketing/library/competitive-analysis/backlink-gap-analysis': typeof MarketingLibraryCompetitiveAnalysisBacklinkGapAnalysisRoute
+  '/_marketing/library/competitive-analysis/competitor-traffic-estimates': typeof MarketingLibraryCompetitiveAnalysisCompetitorTrafficEstimatesRoute
+  '/_marketing/library/competitive-analysis/find-your-real-competitors': typeof MarketingLibraryCompetitiveAnalysisFindYourRealCompetitorsRoute
+  '/_marketing/library/competitive-analysis/keyword-gap-analysis': typeof MarketingLibraryCompetitiveAnalysisKeywordGapAnalysisRoute
   '/_marketing/library/keyword-research/cluster-topical-hubs': typeof MarketingLibraryKeywordResearchClusterTopicalHubsRoute
+  '/_marketing/library/keyword-research/gsc-programmatic-discovery': typeof MarketingLibraryKeywordResearchGscProgrammaticDiscoveryRoute
+  '/_marketing/library/keyword-research/intent-beyond-google': typeof MarketingLibraryKeywordResearchIntentBeyondGoogleRoute
   '/_marketing/library/keyword-research/long-tail-question-mining': typeof MarketingLibraryKeywordResearchLongTailQuestionMiningRoute
+  '/_marketing/library/keyword-research/opportunity-sizing-forecasting': typeof MarketingLibraryKeywordResearchOpportunitySizingForecastingRoute
+  '/_marketing/library/keyword-research/positioning-to-demand': typeof MarketingLibraryKeywordResearchPositioningToDemandRoute
   '/_marketing/library/keyword-research/search-intent-mapping': typeof MarketingLibraryKeywordResearchSearchIntentMappingRoute
   '/_marketing/library/keyword-research/seed-from-conversation': typeof MarketingLibraryKeywordResearchSeedFromConversationRoute
+  '/_marketing/library/link-building/backlink-audit': typeof MarketingLibraryLinkBuildingBacklinkAuditRoute
+  '/_marketing/library/link-building/how-to-get-backlinks': typeof MarketingLibraryLinkBuildingHowToGetBacklinksRoute
+  '/_marketing/library/link-building/referring-domains': typeof MarketingLibraryLinkBuildingReferringDomainsRoute
+  '/_marketing/library/rank-tracking/keyword-ranking-report': typeof MarketingLibraryRankTrackingKeywordRankingReportRoute
+  '/_marketing/library/rank-tracking/local-rank-tracking': typeof MarketingLibraryRankTrackingLocalRankTrackingRoute
+  '/_marketing/library/rank-tracking/search-console-vs-rank-tracker': typeof MarketingLibraryRankTrackingSearchConsoleVsRankTrackerRoute
+  '/_marketing/library/rank-tracking/which-keywords-to-track': typeof MarketingLibraryRankTrackingWhichKeywordsToTrackRoute
+  '/_marketing/library/site-audit/index-bloat': typeof MarketingLibrarySiteAuditIndexBloatRoute
+  '/_marketing/library/site-audit/seo-audit-report-template': typeof MarketingLibrarySiteAuditSeoAuditReportTemplateRoute
+  '/_marketing/library/site-audit/technical-seo-audit-checklist': typeof MarketingLibrarySiteAuditTechnicalSeoAuditChecklistRoute
+  '/_marketing/library/ai-agent-seo/': typeof MarketingLibraryAiAgentSeoIndexRoute
+  '/_marketing/library/competitive-analysis/': typeof MarketingLibraryCompetitiveAnalysisIndexRoute
   '/_marketing/library/keyword-research/': typeof MarketingLibraryKeywordResearchIndexRoute
+  '/_marketing/library/link-building/': typeof MarketingLibraryLinkBuildingIndexRoute
+  '/_marketing/library/rank-tracking/': typeof MarketingLibraryRankTrackingIndexRoute
+  '/_marketing/library/site-audit/': typeof MarketingLibrarySiteAuditIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -314,9 +644,13 @@ export interface FileRouteTypes {
     | '/'
     | '/privacy'
     | '/terms-and-conditions'
+    | '/backlink-checker'
     | '/google-search-console-mcp'
     | '/open-source-seo'
     | '/pricing'
+    | '/roadmap'
+    | '/support'
+    | '/api/backlink-check'
     | '/api/event'
     | '/api/subscribe'
     | '/blogs/$'
@@ -329,6 +663,7 @@ export interface FileRouteTypes {
     | '/features/ai-brand-visibility'
     | '/features/ai-search-prompts'
     | '/features/backlink-checker'
+    | '/features/backlinks'
     | '/features/domain-overview'
     | '/features/keyword-research'
     | '/features/mcp'
@@ -336,18 +671,50 @@ export interface FileRouteTypes {
     | '/features/saved-keywords'
     | '/features/site-audit'
     | '/features/'
+    | '/library/'
+    | '/library/ai-agent-seo/human-in-the-loop-content'
+    | '/library/ai-agent-seo/run-seo-from-your-ai-assistant'
+    | '/library/ai-agent-seo/skills-memory-and-the-trace'
+    | '/library/ai-agent-seo/what-to-automate'
+    | '/library/competitive-analysis/backlink-gap-analysis'
+    | '/library/competitive-analysis/competitor-traffic-estimates'
+    | '/library/competitive-analysis/find-your-real-competitors'
+    | '/library/competitive-analysis/keyword-gap-analysis'
     | '/library/keyword-research/cluster-topical-hubs'
+    | '/library/keyword-research/gsc-programmatic-discovery'
+    | '/library/keyword-research/intent-beyond-google'
     | '/library/keyword-research/long-tail-question-mining'
+    | '/library/keyword-research/opportunity-sizing-forecasting'
+    | '/library/keyword-research/positioning-to-demand'
     | '/library/keyword-research/search-intent-mapping'
     | '/library/keyword-research/seed-from-conversation'
+    | '/library/link-building/backlink-audit'
+    | '/library/link-building/how-to-get-backlinks'
+    | '/library/link-building/referring-domains'
+    | '/library/rank-tracking/keyword-ranking-report'
+    | '/library/rank-tracking/local-rank-tracking'
+    | '/library/rank-tracking/search-console-vs-rank-tracker'
+    | '/library/rank-tracking/which-keywords-to-track'
+    | '/library/site-audit/index-bloat'
+    | '/library/site-audit/seo-audit-report-template'
+    | '/library/site-audit/technical-seo-audit-checklist'
+    | '/library/ai-agent-seo/'
+    | '/library/competitive-analysis/'
     | '/library/keyword-research/'
+    | '/library/link-building/'
+    | '/library/rank-tracking/'
+    | '/library/site-audit/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/privacy'
     | '/terms-and-conditions'
+    | '/backlink-checker'
     | '/google-search-console-mcp'
     | '/open-source-seo'
     | '/pricing'
+    | '/roadmap'
+    | '/support'
+    | '/api/backlink-check'
     | '/api/event'
     | '/api/subscribe'
     | '/blogs/$'
@@ -361,6 +728,7 @@ export interface FileRouteTypes {
     | '/features/ai-brand-visibility'
     | '/features/ai-search-prompts'
     | '/features/backlink-checker'
+    | '/features/backlinks'
     | '/features/domain-overview'
     | '/features/keyword-research'
     | '/features/mcp'
@@ -368,19 +736,51 @@ export interface FileRouteTypes {
     | '/features/saved-keywords'
     | '/features/site-audit'
     | '/features'
+    | '/library'
+    | '/library/ai-agent-seo/human-in-the-loop-content'
+    | '/library/ai-agent-seo/run-seo-from-your-ai-assistant'
+    | '/library/ai-agent-seo/skills-memory-and-the-trace'
+    | '/library/ai-agent-seo/what-to-automate'
+    | '/library/competitive-analysis/backlink-gap-analysis'
+    | '/library/competitive-analysis/competitor-traffic-estimates'
+    | '/library/competitive-analysis/find-your-real-competitors'
+    | '/library/competitive-analysis/keyword-gap-analysis'
     | '/library/keyword-research/cluster-topical-hubs'
+    | '/library/keyword-research/gsc-programmatic-discovery'
+    | '/library/keyword-research/intent-beyond-google'
     | '/library/keyword-research/long-tail-question-mining'
+    | '/library/keyword-research/opportunity-sizing-forecasting'
+    | '/library/keyword-research/positioning-to-demand'
     | '/library/keyword-research/search-intent-mapping'
     | '/library/keyword-research/seed-from-conversation'
+    | '/library/link-building/backlink-audit'
+    | '/library/link-building/how-to-get-backlinks'
+    | '/library/link-building/referring-domains'
+    | '/library/rank-tracking/keyword-ranking-report'
+    | '/library/rank-tracking/local-rank-tracking'
+    | '/library/rank-tracking/search-console-vs-rank-tracker'
+    | '/library/rank-tracking/which-keywords-to-track'
+    | '/library/site-audit/index-bloat'
+    | '/library/site-audit/seo-audit-report-template'
+    | '/library/site-audit/technical-seo-audit-checklist'
+    | '/library/ai-agent-seo'
+    | '/library/competitive-analysis'
     | '/library/keyword-research'
+    | '/library/link-building'
+    | '/library/rank-tracking'
+    | '/library/site-audit'
   id:
     | '__root__'
     | '/_marketing'
     | '/privacy'
     | '/terms-and-conditions'
+    | '/_marketing/backlink-checker'
     | '/_marketing/google-search-console-mcp'
     | '/_marketing/open-source-seo'
     | '/_marketing/pricing'
+    | '/_marketing/roadmap'
+    | '/_marketing/support'
+    | '/api/backlink-check'
     | '/api/event'
     | '/api/subscribe'
     | '/blogs/$'
@@ -394,6 +794,7 @@ export interface FileRouteTypes {
     | '/_marketing/features/ai-brand-visibility'
     | '/_marketing/features/ai-search-prompts'
     | '/_marketing/features/backlink-checker'
+    | '/_marketing/features/backlinks'
     | '/_marketing/features/domain-overview'
     | '/_marketing/features/keyword-research'
     | '/_marketing/features/mcp'
@@ -401,17 +802,46 @@ export interface FileRouteTypes {
     | '/_marketing/features/saved-keywords'
     | '/_marketing/features/site-audit'
     | '/_marketing/features/'
+    | '/_marketing/library/'
+    | '/_marketing/library/ai-agent-seo/human-in-the-loop-content'
+    | '/_marketing/library/ai-agent-seo/run-seo-from-your-ai-assistant'
+    | '/_marketing/library/ai-agent-seo/skills-memory-and-the-trace'
+    | '/_marketing/library/ai-agent-seo/what-to-automate'
+    | '/_marketing/library/competitive-analysis/backlink-gap-analysis'
+    | '/_marketing/library/competitive-analysis/competitor-traffic-estimates'
+    | '/_marketing/library/competitive-analysis/find-your-real-competitors'
+    | '/_marketing/library/competitive-analysis/keyword-gap-analysis'
     | '/_marketing/library/keyword-research/cluster-topical-hubs'
+    | '/_marketing/library/keyword-research/gsc-programmatic-discovery'
+    | '/_marketing/library/keyword-research/intent-beyond-google'
     | '/_marketing/library/keyword-research/long-tail-question-mining'
+    | '/_marketing/library/keyword-research/opportunity-sizing-forecasting'
+    | '/_marketing/library/keyword-research/positioning-to-demand'
     | '/_marketing/library/keyword-research/search-intent-mapping'
     | '/_marketing/library/keyword-research/seed-from-conversation'
+    | '/_marketing/library/link-building/backlink-audit'
+    | '/_marketing/library/link-building/how-to-get-backlinks'
+    | '/_marketing/library/link-building/referring-domains'
+    | '/_marketing/library/rank-tracking/keyword-ranking-report'
+    | '/_marketing/library/rank-tracking/local-rank-tracking'
+    | '/_marketing/library/rank-tracking/search-console-vs-rank-tracker'
+    | '/_marketing/library/rank-tracking/which-keywords-to-track'
+    | '/_marketing/library/site-audit/index-bloat'
+    | '/_marketing/library/site-audit/seo-audit-report-template'
+    | '/_marketing/library/site-audit/technical-seo-audit-checklist'
+    | '/_marketing/library/ai-agent-seo/'
+    | '/_marketing/library/competitive-analysis/'
     | '/_marketing/library/keyword-research/'
+    | '/_marketing/library/link-building/'
+    | '/_marketing/library/rank-tracking/'
+    | '/_marketing/library/site-audit/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   MarketingRoute: typeof MarketingRouteWithChildren
   PrivacyRoute: typeof PrivacyRoute
   TermsAndConditionsRoute: typeof TermsAndConditionsRoute
+  ApiBacklinkCheckRoute: typeof ApiBacklinkCheckRoute
   ApiEventRoute: typeof ApiEventRoute
   ApiSubscribeRoute: typeof ApiSubscribeRoute
   BlogsSplatRoute: typeof BlogsSplatRoute
@@ -516,6 +946,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEventRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/backlink-check': {
+      id: '/api/backlink-check'
+      path: '/api/backlink-check'
+      fullPath: '/api/backlink-check'
+      preLoaderRoute: typeof ApiBacklinkCheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_marketing/support': {
+      id: '/_marketing/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof MarketingSupportRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/roadmap': {
+      id: '/_marketing/roadmap'
+      path: '/roadmap'
+      fullPath: '/roadmap'
+      preLoaderRoute: typeof MarketingRoadmapRouteImport
+      parentRoute: typeof MarketingRoute
+    }
     '/_marketing/pricing': {
       id: '/_marketing/pricing'
       path: '/pricing'
@@ -535,6 +986,20 @@ declare module '@tanstack/react-router' {
       path: '/google-search-console-mcp'
       fullPath: '/google-search-console-mcp'
       preLoaderRoute: typeof MarketingGoogleSearchConsoleMcpRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/backlink-checker': {
+      id: '/_marketing/backlink-checker'
+      path: '/backlink-checker'
+      fullPath: '/backlink-checker'
+      preLoaderRoute: typeof MarketingBacklinkCheckerRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/': {
+      id: '/_marketing/library/'
+      path: '/library'
+      fullPath: '/library/'
+      preLoaderRoute: typeof MarketingLibraryIndexRouteImport
       parentRoute: typeof MarketingRoute
     }
     '/_marketing/features/': {
@@ -586,6 +1051,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketingFeaturesDomainOverviewRouteImport
       parentRoute: typeof MarketingRoute
     }
+    '/_marketing/features/backlinks': {
+      id: '/_marketing/features/backlinks'
+      path: '/features/backlinks'
+      fullPath: '/features/backlinks'
+      preLoaderRoute: typeof MarketingFeaturesBacklinksRouteImport
+      parentRoute: typeof MarketingRoute
+    }
     '/_marketing/features/backlink-checker': {
       id: '/_marketing/features/backlink-checker'
       path: '/features/backlink-checker'
@@ -607,11 +1079,116 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketingFeaturesAiBrandVisibilityRouteImport
       parentRoute: typeof MarketingRoute
     }
+    '/_marketing/library/site-audit/': {
+      id: '/_marketing/library/site-audit/'
+      path: '/library/site-audit'
+      fullPath: '/library/site-audit/'
+      preLoaderRoute: typeof MarketingLibrarySiteAuditIndexRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/rank-tracking/': {
+      id: '/_marketing/library/rank-tracking/'
+      path: '/library/rank-tracking'
+      fullPath: '/library/rank-tracking/'
+      preLoaderRoute: typeof MarketingLibraryRankTrackingIndexRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/link-building/': {
+      id: '/_marketing/library/link-building/'
+      path: '/library/link-building'
+      fullPath: '/library/link-building/'
+      preLoaderRoute: typeof MarketingLibraryLinkBuildingIndexRouteImport
+      parentRoute: typeof MarketingRoute
+    }
     '/_marketing/library/keyword-research/': {
       id: '/_marketing/library/keyword-research/'
       path: '/library/keyword-research'
       fullPath: '/library/keyword-research/'
       preLoaderRoute: typeof MarketingLibraryKeywordResearchIndexRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/competitive-analysis/': {
+      id: '/_marketing/library/competitive-analysis/'
+      path: '/library/competitive-analysis'
+      fullPath: '/library/competitive-analysis/'
+      preLoaderRoute: typeof MarketingLibraryCompetitiveAnalysisIndexRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/ai-agent-seo/': {
+      id: '/_marketing/library/ai-agent-seo/'
+      path: '/library/ai-agent-seo'
+      fullPath: '/library/ai-agent-seo/'
+      preLoaderRoute: typeof MarketingLibraryAiAgentSeoIndexRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/site-audit/technical-seo-audit-checklist': {
+      id: '/_marketing/library/site-audit/technical-seo-audit-checklist'
+      path: '/library/site-audit/technical-seo-audit-checklist'
+      fullPath: '/library/site-audit/technical-seo-audit-checklist'
+      preLoaderRoute: typeof MarketingLibrarySiteAuditTechnicalSeoAuditChecklistRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/site-audit/seo-audit-report-template': {
+      id: '/_marketing/library/site-audit/seo-audit-report-template'
+      path: '/library/site-audit/seo-audit-report-template'
+      fullPath: '/library/site-audit/seo-audit-report-template'
+      preLoaderRoute: typeof MarketingLibrarySiteAuditSeoAuditReportTemplateRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/site-audit/index-bloat': {
+      id: '/_marketing/library/site-audit/index-bloat'
+      path: '/library/site-audit/index-bloat'
+      fullPath: '/library/site-audit/index-bloat'
+      preLoaderRoute: typeof MarketingLibrarySiteAuditIndexBloatRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/rank-tracking/which-keywords-to-track': {
+      id: '/_marketing/library/rank-tracking/which-keywords-to-track'
+      path: '/library/rank-tracking/which-keywords-to-track'
+      fullPath: '/library/rank-tracking/which-keywords-to-track'
+      preLoaderRoute: typeof MarketingLibraryRankTrackingWhichKeywordsToTrackRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/rank-tracking/search-console-vs-rank-tracker': {
+      id: '/_marketing/library/rank-tracking/search-console-vs-rank-tracker'
+      path: '/library/rank-tracking/search-console-vs-rank-tracker'
+      fullPath: '/library/rank-tracking/search-console-vs-rank-tracker'
+      preLoaderRoute: typeof MarketingLibraryRankTrackingSearchConsoleVsRankTrackerRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/rank-tracking/local-rank-tracking': {
+      id: '/_marketing/library/rank-tracking/local-rank-tracking'
+      path: '/library/rank-tracking/local-rank-tracking'
+      fullPath: '/library/rank-tracking/local-rank-tracking'
+      preLoaderRoute: typeof MarketingLibraryRankTrackingLocalRankTrackingRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/rank-tracking/keyword-ranking-report': {
+      id: '/_marketing/library/rank-tracking/keyword-ranking-report'
+      path: '/library/rank-tracking/keyword-ranking-report'
+      fullPath: '/library/rank-tracking/keyword-ranking-report'
+      preLoaderRoute: typeof MarketingLibraryRankTrackingKeywordRankingReportRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/link-building/referring-domains': {
+      id: '/_marketing/library/link-building/referring-domains'
+      path: '/library/link-building/referring-domains'
+      fullPath: '/library/link-building/referring-domains'
+      preLoaderRoute: typeof MarketingLibraryLinkBuildingReferringDomainsRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/link-building/how-to-get-backlinks': {
+      id: '/_marketing/library/link-building/how-to-get-backlinks'
+      path: '/library/link-building/how-to-get-backlinks'
+      fullPath: '/library/link-building/how-to-get-backlinks'
+      preLoaderRoute: typeof MarketingLibraryLinkBuildingHowToGetBacklinksRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/link-building/backlink-audit': {
+      id: '/_marketing/library/link-building/backlink-audit'
+      path: '/library/link-building/backlink-audit'
+      fullPath: '/library/link-building/backlink-audit'
+      preLoaderRoute: typeof MarketingLibraryLinkBuildingBacklinkAuditRouteImport
       parentRoute: typeof MarketingRoute
     }
     '/_marketing/library/keyword-research/seed-from-conversation': {
@@ -628,11 +1205,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketingLibraryKeywordResearchSearchIntentMappingRouteImport
       parentRoute: typeof MarketingRoute
     }
+    '/_marketing/library/keyword-research/positioning-to-demand': {
+      id: '/_marketing/library/keyword-research/positioning-to-demand'
+      path: '/library/keyword-research/positioning-to-demand'
+      fullPath: '/library/keyword-research/positioning-to-demand'
+      preLoaderRoute: typeof MarketingLibraryKeywordResearchPositioningToDemandRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/keyword-research/opportunity-sizing-forecasting': {
+      id: '/_marketing/library/keyword-research/opportunity-sizing-forecasting'
+      path: '/library/keyword-research/opportunity-sizing-forecasting'
+      fullPath: '/library/keyword-research/opportunity-sizing-forecasting'
+      preLoaderRoute: typeof MarketingLibraryKeywordResearchOpportunitySizingForecastingRouteImport
+      parentRoute: typeof MarketingRoute
+    }
     '/_marketing/library/keyword-research/long-tail-question-mining': {
       id: '/_marketing/library/keyword-research/long-tail-question-mining'
       path: '/library/keyword-research/long-tail-question-mining'
       fullPath: '/library/keyword-research/long-tail-question-mining'
       preLoaderRoute: typeof MarketingLibraryKeywordResearchLongTailQuestionMiningRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/keyword-research/intent-beyond-google': {
+      id: '/_marketing/library/keyword-research/intent-beyond-google'
+      path: '/library/keyword-research/intent-beyond-google'
+      fullPath: '/library/keyword-research/intent-beyond-google'
+      preLoaderRoute: typeof MarketingLibraryKeywordResearchIntentBeyondGoogleRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/keyword-research/gsc-programmatic-discovery': {
+      id: '/_marketing/library/keyword-research/gsc-programmatic-discovery'
+      path: '/library/keyword-research/gsc-programmatic-discovery'
+      fullPath: '/library/keyword-research/gsc-programmatic-discovery'
+      preLoaderRoute: typeof MarketingLibraryKeywordResearchGscProgrammaticDiscoveryRouteImport
       parentRoute: typeof MarketingRoute
     }
     '/_marketing/library/keyword-research/cluster-topical-hubs': {
@@ -642,17 +1247,77 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketingLibraryKeywordResearchClusterTopicalHubsRouteImport
       parentRoute: typeof MarketingRoute
     }
+    '/_marketing/library/competitive-analysis/keyword-gap-analysis': {
+      id: '/_marketing/library/competitive-analysis/keyword-gap-analysis'
+      path: '/library/competitive-analysis/keyword-gap-analysis'
+      fullPath: '/library/competitive-analysis/keyword-gap-analysis'
+      preLoaderRoute: typeof MarketingLibraryCompetitiveAnalysisKeywordGapAnalysisRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/competitive-analysis/find-your-real-competitors': {
+      id: '/_marketing/library/competitive-analysis/find-your-real-competitors'
+      path: '/library/competitive-analysis/find-your-real-competitors'
+      fullPath: '/library/competitive-analysis/find-your-real-competitors'
+      preLoaderRoute: typeof MarketingLibraryCompetitiveAnalysisFindYourRealCompetitorsRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/competitive-analysis/competitor-traffic-estimates': {
+      id: '/_marketing/library/competitive-analysis/competitor-traffic-estimates'
+      path: '/library/competitive-analysis/competitor-traffic-estimates'
+      fullPath: '/library/competitive-analysis/competitor-traffic-estimates'
+      preLoaderRoute: typeof MarketingLibraryCompetitiveAnalysisCompetitorTrafficEstimatesRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/competitive-analysis/backlink-gap-analysis': {
+      id: '/_marketing/library/competitive-analysis/backlink-gap-analysis'
+      path: '/library/competitive-analysis/backlink-gap-analysis'
+      fullPath: '/library/competitive-analysis/backlink-gap-analysis'
+      preLoaderRoute: typeof MarketingLibraryCompetitiveAnalysisBacklinkGapAnalysisRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/ai-agent-seo/what-to-automate': {
+      id: '/_marketing/library/ai-agent-seo/what-to-automate'
+      path: '/library/ai-agent-seo/what-to-automate'
+      fullPath: '/library/ai-agent-seo/what-to-automate'
+      preLoaderRoute: typeof MarketingLibraryAiAgentSeoWhatToAutomateRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/ai-agent-seo/skills-memory-and-the-trace': {
+      id: '/_marketing/library/ai-agent-seo/skills-memory-and-the-trace'
+      path: '/library/ai-agent-seo/skills-memory-and-the-trace'
+      fullPath: '/library/ai-agent-seo/skills-memory-and-the-trace'
+      preLoaderRoute: typeof MarketingLibraryAiAgentSeoSkillsMemoryAndTheTraceRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/ai-agent-seo/run-seo-from-your-ai-assistant': {
+      id: '/_marketing/library/ai-agent-seo/run-seo-from-your-ai-assistant'
+      path: '/library/ai-agent-seo/run-seo-from-your-ai-assistant'
+      fullPath: '/library/ai-agent-seo/run-seo-from-your-ai-assistant'
+      preLoaderRoute: typeof MarketingLibraryAiAgentSeoRunSeoFromYourAiAssistantRouteImport
+      parentRoute: typeof MarketingRoute
+    }
+    '/_marketing/library/ai-agent-seo/human-in-the-loop-content': {
+      id: '/_marketing/library/ai-agent-seo/human-in-the-loop-content'
+      path: '/library/ai-agent-seo/human-in-the-loop-content'
+      fullPath: '/library/ai-agent-seo/human-in-the-loop-content'
+      preLoaderRoute: typeof MarketingLibraryAiAgentSeoHumanInTheLoopContentRouteImport
+      parentRoute: typeof MarketingRoute
+    }
   }
 }
 
 interface MarketingRouteChildren {
+  MarketingBacklinkCheckerRoute: typeof MarketingBacklinkCheckerRoute
   MarketingGoogleSearchConsoleMcpRoute: typeof MarketingGoogleSearchConsoleMcpRoute
   MarketingOpenSourceSeoRoute: typeof MarketingOpenSourceSeoRoute
   MarketingPricingRoute: typeof MarketingPricingRoute
+  MarketingRoadmapRoute: typeof MarketingRoadmapRoute
+  MarketingSupportRoute: typeof MarketingSupportRoute
   MarketingIndexRoute: typeof MarketingIndexRoute
   MarketingFeaturesAiBrandVisibilityRoute: typeof MarketingFeaturesAiBrandVisibilityRoute
   MarketingFeaturesAiSearchPromptsRoute: typeof MarketingFeaturesAiSearchPromptsRoute
   MarketingFeaturesBacklinkCheckerRoute: typeof MarketingFeaturesBacklinkCheckerRoute
+  MarketingFeaturesBacklinksRoute: typeof MarketingFeaturesBacklinksRoute
   MarketingFeaturesDomainOverviewRoute: typeof MarketingFeaturesDomainOverviewRoute
   MarketingFeaturesKeywordResearchRoute: typeof MarketingFeaturesKeywordResearchRoute
   MarketingFeaturesMcpRoute: typeof MarketingFeaturesMcpRoute
@@ -660,22 +1325,54 @@ interface MarketingRouteChildren {
   MarketingFeaturesSavedKeywordsRoute: typeof MarketingFeaturesSavedKeywordsRoute
   MarketingFeaturesSiteAuditRoute: typeof MarketingFeaturesSiteAuditRoute
   MarketingFeaturesIndexRoute: typeof MarketingFeaturesIndexRoute
+  MarketingLibraryIndexRoute: typeof MarketingLibraryIndexRoute
+  MarketingLibraryAiAgentSeoHumanInTheLoopContentRoute: typeof MarketingLibraryAiAgentSeoHumanInTheLoopContentRoute
+  MarketingLibraryAiAgentSeoRunSeoFromYourAiAssistantRoute: typeof MarketingLibraryAiAgentSeoRunSeoFromYourAiAssistantRoute
+  MarketingLibraryAiAgentSeoSkillsMemoryAndTheTraceRoute: typeof MarketingLibraryAiAgentSeoSkillsMemoryAndTheTraceRoute
+  MarketingLibraryAiAgentSeoWhatToAutomateRoute: typeof MarketingLibraryAiAgentSeoWhatToAutomateRoute
+  MarketingLibraryCompetitiveAnalysisBacklinkGapAnalysisRoute: typeof MarketingLibraryCompetitiveAnalysisBacklinkGapAnalysisRoute
+  MarketingLibraryCompetitiveAnalysisCompetitorTrafficEstimatesRoute: typeof MarketingLibraryCompetitiveAnalysisCompetitorTrafficEstimatesRoute
+  MarketingLibraryCompetitiveAnalysisFindYourRealCompetitorsRoute: typeof MarketingLibraryCompetitiveAnalysisFindYourRealCompetitorsRoute
+  MarketingLibraryCompetitiveAnalysisKeywordGapAnalysisRoute: typeof MarketingLibraryCompetitiveAnalysisKeywordGapAnalysisRoute
   MarketingLibraryKeywordResearchClusterTopicalHubsRoute: typeof MarketingLibraryKeywordResearchClusterTopicalHubsRoute
+  MarketingLibraryKeywordResearchGscProgrammaticDiscoveryRoute: typeof MarketingLibraryKeywordResearchGscProgrammaticDiscoveryRoute
+  MarketingLibraryKeywordResearchIntentBeyondGoogleRoute: typeof MarketingLibraryKeywordResearchIntentBeyondGoogleRoute
   MarketingLibraryKeywordResearchLongTailQuestionMiningRoute: typeof MarketingLibraryKeywordResearchLongTailQuestionMiningRoute
+  MarketingLibraryKeywordResearchOpportunitySizingForecastingRoute: typeof MarketingLibraryKeywordResearchOpportunitySizingForecastingRoute
+  MarketingLibraryKeywordResearchPositioningToDemandRoute: typeof MarketingLibraryKeywordResearchPositioningToDemandRoute
   MarketingLibraryKeywordResearchSearchIntentMappingRoute: typeof MarketingLibraryKeywordResearchSearchIntentMappingRoute
   MarketingLibraryKeywordResearchSeedFromConversationRoute: typeof MarketingLibraryKeywordResearchSeedFromConversationRoute
+  MarketingLibraryLinkBuildingBacklinkAuditRoute: typeof MarketingLibraryLinkBuildingBacklinkAuditRoute
+  MarketingLibraryLinkBuildingHowToGetBacklinksRoute: typeof MarketingLibraryLinkBuildingHowToGetBacklinksRoute
+  MarketingLibraryLinkBuildingReferringDomainsRoute: typeof MarketingLibraryLinkBuildingReferringDomainsRoute
+  MarketingLibraryRankTrackingKeywordRankingReportRoute: typeof MarketingLibraryRankTrackingKeywordRankingReportRoute
+  MarketingLibraryRankTrackingLocalRankTrackingRoute: typeof MarketingLibraryRankTrackingLocalRankTrackingRoute
+  MarketingLibraryRankTrackingSearchConsoleVsRankTrackerRoute: typeof MarketingLibraryRankTrackingSearchConsoleVsRankTrackerRoute
+  MarketingLibraryRankTrackingWhichKeywordsToTrackRoute: typeof MarketingLibraryRankTrackingWhichKeywordsToTrackRoute
+  MarketingLibrarySiteAuditIndexBloatRoute: typeof MarketingLibrarySiteAuditIndexBloatRoute
+  MarketingLibrarySiteAuditSeoAuditReportTemplateRoute: typeof MarketingLibrarySiteAuditSeoAuditReportTemplateRoute
+  MarketingLibrarySiteAuditTechnicalSeoAuditChecklistRoute: typeof MarketingLibrarySiteAuditTechnicalSeoAuditChecklistRoute
+  MarketingLibraryAiAgentSeoIndexRoute: typeof MarketingLibraryAiAgentSeoIndexRoute
+  MarketingLibraryCompetitiveAnalysisIndexRoute: typeof MarketingLibraryCompetitiveAnalysisIndexRoute
   MarketingLibraryKeywordResearchIndexRoute: typeof MarketingLibraryKeywordResearchIndexRoute
+  MarketingLibraryLinkBuildingIndexRoute: typeof MarketingLibraryLinkBuildingIndexRoute
+  MarketingLibraryRankTrackingIndexRoute: typeof MarketingLibraryRankTrackingIndexRoute
+  MarketingLibrarySiteAuditIndexRoute: typeof MarketingLibrarySiteAuditIndexRoute
 }
 
 const MarketingRouteChildren: MarketingRouteChildren = {
+  MarketingBacklinkCheckerRoute: MarketingBacklinkCheckerRoute,
   MarketingGoogleSearchConsoleMcpRoute: MarketingGoogleSearchConsoleMcpRoute,
   MarketingOpenSourceSeoRoute: MarketingOpenSourceSeoRoute,
   MarketingPricingRoute: MarketingPricingRoute,
+  MarketingRoadmapRoute: MarketingRoadmapRoute,
+  MarketingSupportRoute: MarketingSupportRoute,
   MarketingIndexRoute: MarketingIndexRoute,
   MarketingFeaturesAiBrandVisibilityRoute:
     MarketingFeaturesAiBrandVisibilityRoute,
   MarketingFeaturesAiSearchPromptsRoute: MarketingFeaturesAiSearchPromptsRoute,
   MarketingFeaturesBacklinkCheckerRoute: MarketingFeaturesBacklinkCheckerRoute,
+  MarketingFeaturesBacklinksRoute: MarketingFeaturesBacklinksRoute,
   MarketingFeaturesDomainOverviewRoute: MarketingFeaturesDomainOverviewRoute,
   MarketingFeaturesKeywordResearchRoute: MarketingFeaturesKeywordResearchRoute,
   MarketingFeaturesMcpRoute: MarketingFeaturesMcpRoute,
@@ -683,16 +1380,69 @@ const MarketingRouteChildren: MarketingRouteChildren = {
   MarketingFeaturesSavedKeywordsRoute: MarketingFeaturesSavedKeywordsRoute,
   MarketingFeaturesSiteAuditRoute: MarketingFeaturesSiteAuditRoute,
   MarketingFeaturesIndexRoute: MarketingFeaturesIndexRoute,
+  MarketingLibraryIndexRoute: MarketingLibraryIndexRoute,
+  MarketingLibraryAiAgentSeoHumanInTheLoopContentRoute:
+    MarketingLibraryAiAgentSeoHumanInTheLoopContentRoute,
+  MarketingLibraryAiAgentSeoRunSeoFromYourAiAssistantRoute:
+    MarketingLibraryAiAgentSeoRunSeoFromYourAiAssistantRoute,
+  MarketingLibraryAiAgentSeoSkillsMemoryAndTheTraceRoute:
+    MarketingLibraryAiAgentSeoSkillsMemoryAndTheTraceRoute,
+  MarketingLibraryAiAgentSeoWhatToAutomateRoute:
+    MarketingLibraryAiAgentSeoWhatToAutomateRoute,
+  MarketingLibraryCompetitiveAnalysisBacklinkGapAnalysisRoute:
+    MarketingLibraryCompetitiveAnalysisBacklinkGapAnalysisRoute,
+  MarketingLibraryCompetitiveAnalysisCompetitorTrafficEstimatesRoute:
+    MarketingLibraryCompetitiveAnalysisCompetitorTrafficEstimatesRoute,
+  MarketingLibraryCompetitiveAnalysisFindYourRealCompetitorsRoute:
+    MarketingLibraryCompetitiveAnalysisFindYourRealCompetitorsRoute,
+  MarketingLibraryCompetitiveAnalysisKeywordGapAnalysisRoute:
+    MarketingLibraryCompetitiveAnalysisKeywordGapAnalysisRoute,
   MarketingLibraryKeywordResearchClusterTopicalHubsRoute:
     MarketingLibraryKeywordResearchClusterTopicalHubsRoute,
+  MarketingLibraryKeywordResearchGscProgrammaticDiscoveryRoute:
+    MarketingLibraryKeywordResearchGscProgrammaticDiscoveryRoute,
+  MarketingLibraryKeywordResearchIntentBeyondGoogleRoute:
+    MarketingLibraryKeywordResearchIntentBeyondGoogleRoute,
   MarketingLibraryKeywordResearchLongTailQuestionMiningRoute:
     MarketingLibraryKeywordResearchLongTailQuestionMiningRoute,
+  MarketingLibraryKeywordResearchOpportunitySizingForecastingRoute:
+    MarketingLibraryKeywordResearchOpportunitySizingForecastingRoute,
+  MarketingLibraryKeywordResearchPositioningToDemandRoute:
+    MarketingLibraryKeywordResearchPositioningToDemandRoute,
   MarketingLibraryKeywordResearchSearchIntentMappingRoute:
     MarketingLibraryKeywordResearchSearchIntentMappingRoute,
   MarketingLibraryKeywordResearchSeedFromConversationRoute:
     MarketingLibraryKeywordResearchSeedFromConversationRoute,
+  MarketingLibraryLinkBuildingBacklinkAuditRoute:
+    MarketingLibraryLinkBuildingBacklinkAuditRoute,
+  MarketingLibraryLinkBuildingHowToGetBacklinksRoute:
+    MarketingLibraryLinkBuildingHowToGetBacklinksRoute,
+  MarketingLibraryLinkBuildingReferringDomainsRoute:
+    MarketingLibraryLinkBuildingReferringDomainsRoute,
+  MarketingLibraryRankTrackingKeywordRankingReportRoute:
+    MarketingLibraryRankTrackingKeywordRankingReportRoute,
+  MarketingLibraryRankTrackingLocalRankTrackingRoute:
+    MarketingLibraryRankTrackingLocalRankTrackingRoute,
+  MarketingLibraryRankTrackingSearchConsoleVsRankTrackerRoute:
+    MarketingLibraryRankTrackingSearchConsoleVsRankTrackerRoute,
+  MarketingLibraryRankTrackingWhichKeywordsToTrackRoute:
+    MarketingLibraryRankTrackingWhichKeywordsToTrackRoute,
+  MarketingLibrarySiteAuditIndexBloatRoute:
+    MarketingLibrarySiteAuditIndexBloatRoute,
+  MarketingLibrarySiteAuditSeoAuditReportTemplateRoute:
+    MarketingLibrarySiteAuditSeoAuditReportTemplateRoute,
+  MarketingLibrarySiteAuditTechnicalSeoAuditChecklistRoute:
+    MarketingLibrarySiteAuditTechnicalSeoAuditChecklistRoute,
+  MarketingLibraryAiAgentSeoIndexRoute: MarketingLibraryAiAgentSeoIndexRoute,
+  MarketingLibraryCompetitiveAnalysisIndexRoute:
+    MarketingLibraryCompetitiveAnalysisIndexRoute,
   MarketingLibraryKeywordResearchIndexRoute:
     MarketingLibraryKeywordResearchIndexRoute,
+  MarketingLibraryLinkBuildingIndexRoute:
+    MarketingLibraryLinkBuildingIndexRoute,
+  MarketingLibraryRankTrackingIndexRoute:
+    MarketingLibraryRankTrackingIndexRoute,
+  MarketingLibrarySiteAuditIndexRoute: MarketingLibrarySiteAuditIndexRoute,
 }
 
 const MarketingRouteWithChildren = MarketingRoute._addFileChildren(
@@ -703,6 +1453,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketingRoute: MarketingRouteWithChildren,
   PrivacyRoute: PrivacyRoute,
   TermsAndConditionsRoute: TermsAndConditionsRoute,
+  ApiBacklinkCheckRoute: ApiBacklinkCheckRoute,
   ApiEventRoute: ApiEventRoute,
   ApiSubscribeRoute: ApiSubscribeRoute,
   BlogsSplatRoute: BlogsSplatRoute,

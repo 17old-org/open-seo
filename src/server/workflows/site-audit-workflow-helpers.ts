@@ -1,12 +1,11 @@
-import type {
-  CrawledPageResult,
-  PageFetchClass,
-} from "@/server/lib/audit/types";
+import type { CrawledPageResult } from "@/server/lib/audit/types";
+import type { PageFetchClass } from "@/shared/audit-fetch-class";
 import { sha256Hex } from "@/server/lib/audit/ids";
 import { normalizeUrl } from "@/server/lib/audit/url-utils";
+import type { CrawlThrottle } from "@/server/lib/audit/crawl-throttle";
 
 const CRAWL_USER_AGENT = "OpenSEO-Audit/1.0";
-const MAX_HTML_BYTES = 2 * 1024 * 1024;
+const MAX_HTML_BYTES = 1024 * 1024;
 
 /**
  * Markers of a bot-mitigation challenge page. We classify these honestly as
@@ -26,10 +25,12 @@ function classifyFetch(
   bodySnippet: string,
 ): PageFetchClass {
   if (statusCode === 0) return "error";
+  // A final 429 means rate limiting, whether retries were exhausted or the
+  // requested cooldown exceeded the crawl budget. Checked before
+  // cf-mitigated: a Cloudflare rate-limiting rule sets that header too.
+  if (statusCode === 429) return "rate_limited";
   if (headers.get("cf-mitigated")) return "blocked";
-  if (statusCode === 401 || statusCode === 403 || statusCode === 429) {
-    return "blocked";
-  }
+  if (statusCode === 401 || statusCode === 403) return "blocked";
   if (statusCode === 503) {
     const snippet = bodySnippet.toLowerCase();
     if (CHALLENGE_BODY_MARKERS.some((marker) => snippet.includes(marker))) {
@@ -55,14 +56,15 @@ function parseLinkHeaderCanonical(
   return null;
 }
 
-export async function crawlPage(
-  url: string,
-  crawlDepth: number | null,
-  inSitemap: boolean,
-): Promise<CrawledPageResult> {
-  const startTime = Date.now();
-
-  try {
+/**
+ * Fetch one URL, pausing the whole chunk and retrying while the site 429s
+ * (see crawl-throttle.ts). `responseTimeMs` is measured from the last attempt
+ * so backoff waiting never looks like a slow server.
+ */
+async function fetchPage(url: string, throttle: CrawlThrottle) {
+  for (let attempt = 1; ; attempt++) {
+    if (!(await throttle.ready())) return null;
+    const startedAt = Date.now();
     // Manual redirect handling: each hop is recorded as its own page row and
     // its target is enqueued by the frontier, so redirect chains and loops are
     // detectable from the recorded rows. Trailing-slash redirects (/docs ->
@@ -77,8 +79,41 @@ export async function crawlPage(
       redirect: "manual",
       signal: AbortSignal.timeout(15_000),
     });
+    const result = {
+      response,
+      responseTimeMs: Date.now() - startedAt,
+      // A retry means an earlier attempt was 429'd; a 429 handed back after
+      // the last retry is already classified rate_limited and needs no flag.
+      rateLimited: attempt > 1,
+    };
+    if (response.status !== 429) {
+      await throttle.recovered();
+      return result;
+    }
 
-    const responseTimeMs = Date.now() - startTime;
+    const retry = await throttle.backoff(
+      attempt,
+      response.headers.get("retry-after"),
+    );
+    // The shared cooldown applies even when this URL has no retries left.
+    if (!retry) return result;
+    await response.body?.cancel();
+  }
+}
+
+/** Null leaves this URL deferred when the shared cooldown stops its fetch. */
+export async function crawlPage(
+  url: string,
+  crawlDepth: number | null,
+  inSitemap: boolean,
+  throttle: CrawlThrottle,
+): Promise<CrawledPageResult | null> {
+  const startTime = Date.now();
+
+  try {
+    const fetched = await fetchPage(url, throttle);
+    if (!fetched) return null;
+    const { response, responseTimeMs, rateLimited } = fetched;
     const statusCode = response.status;
     const xRobotsTag = response.headers.get("x-robots-tag");
     const headerCanonicalUrl = parseLinkHeaderCanonical(
@@ -99,14 +134,14 @@ export async function crawlPage(
         headerCanonicalUrl,
         crawlDepth,
         inSitemap,
+        rateLimited,
       });
     }
 
     const contentType = response.headers.get("content-type") ?? "";
     const isHtml = contentType.includes("text/html");
-    // Large pages make Cheerio disproportionately expensive and can exhaust a
-    // crawl step's CPU or isolate memory. The first 2 MiB still contains the
-    // SEO metadata and navigation needed by the audit in normal documents.
+    // Cap what we read: the first 1 MiB still contains the SEO metadata and
+    // navigation needed by the audit in normal documents.
     const body = isHtml ? await readTextUpTo(response, MAX_HTML_BYTES) : "";
     const fetchClass = classifyFetch(
       statusCode,
@@ -125,13 +160,17 @@ export async function crawlPage(
         headerCanonicalUrl,
         crawlDepth,
         inSitemap,
+        // The body was still fetched and buffered; report its size so the
+        // crawl window's byte budget sees blocked/error pages too.
+        htmlBytes: body.length,
+        rateLimited,
       });
     }
 
-    // Dynamic import keeps cheerio (page-analyzer's HTML parser) out of the
-    // worker's startup module graph: SiteAuditWorkflow is re-exported from
-    // src/server.ts, so a static import would evaluate cheerio in every
-    // isolate's baseline heap, not just when an audit actually crawls.
+    // Dynamic import keeps the HTML parser out of the worker's startup
+    // module graph: SiteAuditWorkflow is re-exported from src/server.ts, so
+    // a static import would evaluate it in every isolate's baseline heap,
+    // not just when an audit actually crawls.
     const { analyzeHtml } = await import("@/server/lib/audit/page-analyzer");
     const analysis = analyzeHtml(body, url, statusCode, responseTimeMs);
     const robotsDirectives = [analysis.robotsMeta, xRobotsTag]
@@ -142,7 +181,10 @@ export async function crawlPage(
     const headingCount = (level: number) =>
       analysis.headingOrder.filter((h) => h === level).length;
 
-    return {
+    // Parser strings can be V8 slices backed by the entire HTML body. Detach
+    // the finished result before persistence queues retain it: otherwise a
+    // few KB of metadata can keep ~2 MiB of decoded HTML alive per page.
+    return structuredClone({
       id: crypto.randomUUID(),
       url,
       statusCode,
@@ -171,6 +213,8 @@ export async function crawlPage(
         ? await sha256Hex(analysis.bodyText)
         : null,
       isHtml: true,
+      htmlBytes: body.length,
+      rateLimited,
       imagesTotal: analysis.images.length,
       // Only a truly absent alt attribute counts: alt="" is the correct
       // markup for decorative images.
@@ -184,8 +228,11 @@ export async function crawlPage(
       responseTimeMs,
       crawlDepth,
       inSitemap,
-    };
+    });
   } catch (error) {
+    // Losing a durable cooldown must fail the workflow, not become a page
+    // error that lets the scheduler continue making requests.
+    if (throttle.checkpointFailed) throw error;
     const responseTimeMs = Date.now() - startTime;
     console.warn(`Failed to crawl ${url}:`, error);
     return emptyPageResult({
@@ -244,6 +291,8 @@ function emptyPageResult(input: {
   headerCanonicalUrl: string | null;
   crawlDepth: number | null;
   inSitemap: boolean;
+  htmlBytes?: number;
+  rateLimited?: boolean;
 }): CrawledPageResult {
   return {
     id: crypto.randomUUID(),
@@ -270,6 +319,8 @@ function emptyPageResult(input: {
     wordCount: 0,
     contentHash: null,
     isHtml: false,
+    htmlBytes: input.htmlBytes ?? 0,
+    rateLimited: input.rateLimited ?? false,
     imagesTotal: 0,
     imagesMissingAlt: 0,
     images: [],

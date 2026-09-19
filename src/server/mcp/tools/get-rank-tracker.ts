@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { RankTrackingRepository } from "@/server/features/rank-tracking/repositories/RankTrackingRepository";
-import { getLatestResults } from "@/server/features/rank-tracking/services/rankTrackingResults";
+import { RankTrackingService } from "@/server/features/rank-tracking/services/RankTrackingService";
 import { mcpResponse } from "@/server/mcp/formatters";
 import { buildProjectMeta } from "@/server/mcp/context";
 import {
@@ -29,10 +28,32 @@ const RANK_RESULT_COLUMNS: McpTableColumn<unknown>[] = [
   },
 ];
 
+/**
+ * `lastCheckedAt` comes from the newest snapshot, so a run that finished
+ * without saving any (e.g. every keyword errored) would otherwise read
+ * "never". Report the run's own state instead.
+ */
+function formatLatestRun(
+  run: {
+    status: "pending" | "running" | "completed" | "failed";
+    completedAt: string | null;
+    lastCheckedAt: string | null;
+    errorMessage: string | null;
+  } | null,
+): string {
+  if (!run) return "Latest run: never";
+  if (run.status === "failed")
+    return `Latest run: failed — ${run.errorMessage ?? "Unknown error"}`;
+  if (run.status === "completed")
+    return `Latest run: ${run.completedAt ?? run.lastCheckedAt ?? "completed"}`;
+  return `Latest run: ${run.status}`;
+}
+
 const inputSchema = {
   projectId: projectIdSchema,
   trackerId: z
     .string()
+    .uuid()
     .optional()
     .describe(
       "Rank tracker config ID. If omitted, lists all rank trackers in the project.",
@@ -46,13 +67,27 @@ export const getRankTrackerTool = {
   config: {
     title: "Get rank tracker",
     description:
-      "Read-only access to rank tracker configs and their latest results. With `trackerId`, returns config + latest snapshot per keyword. Without it, lists all trackers in the project. Uses no credits — reads from OpenSEO state, no DataForSEO call. To trigger a new check, use the dashboard.",
+      "Read-only access to rank tracker configs and their latest results. With `trackerId`, returns config + latest snapshot per keyword, including `trackingKeywordId` for removals. Without it, lists all trackers in the project. Uses no credits. Use create_rank_tracker when no tracker exists; then use add_rank_tracking_keywords, remove_rank_tracking_keywords, estimate_rank_tracker_cost, or run_rank_tracker to manage it. `lastCheckedAt` shows position freshness.",
     inputSchema,
     outputSchema: z
       .object({
         configs: z.array(looseObjectOutputSchema).optional(),
         config: looseObjectOutputSchema.optional(),
-        results: looseObjectOutputSchema.optional(),
+        results: z
+          .object({
+            rows: z.array(looseObjectOutputSchema),
+            run: z
+              .object({
+                id: z.string(),
+                lastCheckedAt: z.string().nullable(),
+                completedAt: z.string().nullable(),
+                status: z.enum(["pending", "running", "completed", "failed"]),
+                errorMessage: z.string().nullable(),
+              })
+              .nullable(),
+          })
+          .passthrough()
+          .optional(),
         ...optionalMetaOutputSchema,
       })
       .passthrough(),
@@ -64,9 +99,7 @@ export const getRankTrackerTool = {
   },
   handler: withMcpProjectAuth(async (args: Args, context) => {
     if (!args.trackerId) {
-      const configs = await RankTrackingRepository.getConfigsForProject(
-        args.projectId,
-      );
+      const configs = await RankTrackingService.getConfigs(args.projectId);
       const text =
         configs.length === 0
           ? "No rank trackers configured for this project."
@@ -74,7 +107,7 @@ export const getRankTrackerTool = {
             configs
               .map(
                 (c) =>
-                  `- ${c.id}  ${c.domain}  loc:${c.locationCode}  schedule:${c.scheduleInterval}`,
+                  `- ${c.id}  ${c.domain}  loc:${c.locationCode}${c.locationName ? `  location:"${c.locationName}"` : ""}  schedule:${c.scheduleInterval}`,
               )
               .join("\n");
       return mcpResponse({
@@ -88,21 +121,14 @@ export const getRankTrackerTool = {
       });
     }
 
-    const config = await RankTrackingRepository.getConfigById({
-      configId: args.trackerId,
-      projectId: args.projectId,
-    });
-    if (!config) {
-      return mcpResponse({
-        text: `Rank tracker ${args.trackerId} not found in project ${args.projectId}.`,
-        meta: buildProjectMeta(context, args.projectId),
-      });
-    }
-    const results = await getLatestResults(args.trackerId, args.projectId);
+    const { config, results } = await RankTrackingService.getTracker(
+      args.trackerId,
+      args.projectId,
+    );
     const text = [
-      `Tracker ${config.id} (${config.domain}):`,
+      `Tracker ${config.id} (${config.domain}${config.locationName ? `, ${config.locationName}` : ""}):`,
       `Schedule: ${config.scheduleInterval}, devices: ${config.devices}, depth: ${config.serpDepth}`,
-      `Latest run: ${results.run?.lastCheckedAt ?? "never"}`,
+      formatLatestRun(results.run),
       `Keywords (${results.rows.length}):`,
       results.rows.length === 0
         ? "No keywords tracked yet."

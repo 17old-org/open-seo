@@ -4,6 +4,7 @@ import {
   integer,
   real,
   uniqueIndex,
+  primaryKey,
   index,
 } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
@@ -258,6 +259,12 @@ export const rankTrackingKeywords = sqliteTable(
       .notNull()
       .references(() => rankTrackingConfigs.id, { onDelete: "cascade" }),
     keyword: text("keyword").notNull(),
+    // Keywords are lowercased on add unless this is set, in which case the
+    // keyword is stored and searched exactly as typed. Google can return a
+    // different SERP for "Nodex" than for "nodex".
+    matchCase: integer("match_case", { mode: "boolean" })
+      .notNull()
+      .default(false),
     searchVolume: integer("search_volume"),
     keywordDifficulty: integer("keyword_difficulty"),
     cpc: real("cpc"),
@@ -381,6 +388,9 @@ export const projectActivationState = sqliteTable("project_activation_state", {
   // without faking the org-level first-tool-call milestone, which stays
   // truthful and self-heals when a real external call lands.
   mcpCardDismissedAt: text("mcp_card_dismissed_at"),
+  // Optional integration pitch: hiding it from the dashboard does not remove
+  // the GA4 connection controls from Project Settings.
+  ga4CardDismissedAt: text("ga4_card_dismissed_at"),
   updatedAt: text("updated_at")
     .notNull()
     .default(sql`(current_timestamp)`),
@@ -416,5 +426,23 @@ export const backlinkSnapshots = sqliteTable(
       table.projectId,
       table.capturedAt,
     ),
+  ],
+);
+
+// Personal checklist preferences; completion remains derived from product state.
+export const dashboardStepDismissals = sqliteTable(
+  "dashboard_step_dismissals",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    step: text("step").notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.projectId, table.step] }),
+    index("dashboard_step_dismissals_project_idx").on(table.projectId),
   ],
 );

@@ -63,13 +63,27 @@ export async function getOrCreateOrganizationCustomer(
   return { id: customer.id };
 }
 
-export async function customerHasPaidPlan(customerId: string) {
+export async function customerHasPaidPlan(
+  customerId: string,
+  opts: { retryDenied?: boolean } = {},
+) {
   const result = await autumn.check({
     customerId,
     featureId: AUTUMN_PAID_PLAN_FEATURE_ID,
   });
+  if (result.allowed || !opts.retryDenied) return result.allowed;
 
-  return result.allowed;
+  // Autumn sometimes returns degraded entitlement data in a successful
+  // response (see the balance retry in getUsageCreditsRemaining). Where a
+  // false negative does lasting damage — the scheduler would advance a paying
+  // org's schedule and flag "plan_required" — callers opt into one re-check.
+  // Interactive deny paths skip it to stay fast for genuinely free users.
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const retry = await autumn.check({
+    customerId,
+    featureId: AUTUMN_PAID_PLAN_FEATURE_ID,
+  });
+  return retry.allowed;
 }
 
 export async function customerHasManagedAccess(customerId: string) {
@@ -96,21 +110,35 @@ async function getUsageCreditsRemaining(customerId: string): Promise<{
     }),
   ]);
 
+  // Autumn sometimes returns a successful response with no monthly balance
+  // for a customer that holds the feature. Retry that read once because the
+  // SDK's retry policy only covers failed HTTP requests.
+  let monthlyBalance = monthlyCheck.balance;
+  if (!monthlyBalance) {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    const retry = await autumn.check({
+      customerId,
+      featureId: AUTUMN_SEO_DATA_BALANCE_FEATURE_ID,
+    });
+    monthlyBalance = retry.balance;
+  }
+
   // Every hosted org holds the monthly feature (the free plan is the Autumn
   // default, attached at customer creation), so a check with no balance data
   // is a broken read, not an empty wallet. Throwing keeps it out of the
   // credit math — coercing it to 0 once locked a paying customer with ~9k
   // credits out of chat (2026-07-20). The topup balance genuinely doesn't
   // exist until a first top-up, so 0 is the honest reading there.
-  if (!monthlyCheck.balance) {
+  if (!monthlyBalance) {
+    // INTERNAL_ERROR, not UPSTREAM_UNAVAILABLE: this must stay reportable.
     throw new AppError(
-      "UPSTREAM_UNAVAILABLE",
+      "INTERNAL_ERROR",
       `Autumn check returned no ${AUTUMN_SEO_DATA_BALANCE_FEATURE_ID} balance for customer ${customerId}`,
     );
   }
 
   return {
-    monthlyRemaining: monthlyCheck.balance.remaining,
+    monthlyRemaining: monthlyBalance.remaining,
     topupRemaining: topupCheck.balance?.remaining ?? 0,
   };
 }
@@ -196,7 +224,7 @@ export async function assertUsageCreditsAvailable(
  * Deducts a USD provider cost from the org's shared usage-credit pool: applies
  * the platform markup, converts to credits, spends monthly `usage_credits`
  * first then `topup_credits`, and emits the usage:credits_consume event. Both
- * DataForSEO and onboarding-LLM spend route through here, so they draw from the
+ * DataForSEO and agent-LLM spend route through here, so they draw from the
  * one pool. Pass `monthlyRemaining` from the balance check that gated the call.
  */
 export async function trackUsageCreditSpend(args: {
@@ -206,12 +234,12 @@ export async function trackUsageCreditSpend(args: {
   costUsd: number;
   monthlyRemaining: number;
   properties?: Record<string, unknown>;
-}): Promise<void> {
+}): Promise<{ monthlyCredits: number; topupCredits: number }> {
   const totalCostUsd = roundUsdForBilling(args.costUsd * SEO_DATA_COST_MARKUP);
   const totalCostCredits = Math.ceil(
     totalCostUsd * AUTUMN_SEO_DATA_CREDITS_PER_USD,
   );
-  if (totalCostCredits <= 0) return;
+  if (totalCostCredits <= 0) return { monthlyCredits: 0, topupCredits: 0 };
 
   // Clamp at 0: Autumn balances can read negative after an overdraft, and a
   // negative monthly reading here would inflate the topup deduction.
@@ -272,4 +300,5 @@ export async function trackUsageCreditSpend(args: {
       cost_usd: totalCostUsd,
     },
   });
+  return { monthlyCredits: monthlyDeduct, topupCredits: topupDeduct };
 }

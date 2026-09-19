@@ -22,7 +22,10 @@ import {
   AUTUMN_SEO_DATA_BALANCE_FEATURE_ID,
   AUTUMN_SEO_DATA_TOPUP_BALANCE_FEATURE_ID,
 } from "@/shared/billing";
-import { estimateRankCheckCredits } from "@/shared/rank-tracking";
+import {
+  estimateRankCheckCredits,
+  rankCheckCostApprovalError,
+} from "@/shared/rank-tracking";
 import { isHostedServerAuthMode } from "@/server/lib/runtime-env";
 
 const SINGLE_ATTEMPT_STEP_CONFIG = {
@@ -43,9 +46,10 @@ interface RankCheckParams {
   serpDepth: number;
   trigger: "manual" | "scheduled";
   keywordIds?: string[];
+  maxCostCredits?: number;
 }
 
-async function prepareRankCheckKeywords(input: {
+export async function prepareRankCheckKeywords(input: {
   runId: string;
   configId: string;
   billingCustomer: BillingCustomerContext;
@@ -53,6 +57,7 @@ async function prepareRankCheckKeywords(input: {
   serpDepth: number;
   trigger: RankCheckParams["trigger"];
   keywordIds?: string[];
+  maxCostCredits?: number;
 }) {
   // If stale-cleanup marked our run failed before we got here, bail out
   // rather than resurrecting a superseded run.
@@ -80,16 +85,23 @@ async function prepareRankCheckKeywords(input: {
     throw new AppError("INTERNAL_ERROR", "No keywords to track");
   }
 
+  const { costCredits } = estimateRankCheckCredits(
+    trackingKeywords.length,
+    input.devices,
+    input.serpDepth,
+    input.trigger === "scheduled" ? "queued" : "live",
+  );
+  if (input.maxCostCredits != null && costCredits > input.maxCostCredits) {
+    throw new AppError(
+      "VALIDATION_ERROR",
+      rankCheckCostApprovalError(costCredits, input.maxCostCredits),
+    );
+  }
+
   // Verify the user has enough credits for the full check before starting.
   // Scheduled checks go through the cheaper task queue, so estimate at queued
   // pricing — a live-price estimate would skip checks the user can afford.
   if (await isHostedServerAuthMode()) {
-    const { costCredits } = estimateRankCheckCredits(
-      trackingKeywords.length,
-      input.devices,
-      input.serpDepth,
-      input.trigger === "scheduled" ? "queued" : "live",
-    );
     const [monthlyCheck, topupCheck] = await Promise.all([
       autumn.check({
         customerId: input.billingCustomer.organizationId,
@@ -156,29 +168,37 @@ async function finalizeRankCheckRun(input: {
   const keywordsTotal = run.keywordsTotal || keywordsChecked;
   const incompleteCount = keywordsTotal - keywordsChecked;
 
-  let errorMessage: string | undefined;
-  if (input.batchError) {
-    errorMessage = `Completed ${keywordsChecked} of ${keywordsTotal} keyword(s). Error: ${input.batchError}`;
-  } else if (incompleteCount > 0) {
-    errorMessage = `${incompleteCount} keyword(s) could not be checked`;
-  }
+  // Batch steps record the first per-keyword rejection on the run as it
+  // happens, so a failed run shows the vendor's reason rather than a count.
+  const keywordError = run.errorMessage ?? input.batchError;
+  const status =
+    keywordsChecked === 0 && keywordsTotal > 0 ? "failed" : "completed";
+  const errorMessage =
+    status === "failed"
+      ? (keywordError ?? "No keywords could be checked.")
+      : incompleteCount > 0
+        ? `Checked ${keywordsChecked} of ${keywordsTotal} keyword(s)${keywordError ? `: ${keywordError}` : ""}`
+        : null;
 
   // Flipping status away from 'pending'/'running' is what releases the
   // partial-index slot for the next run.
   await RankTrackingRepository.updateRun(input.runId, {
-    status: "completed",
+    status,
     keywordsChecked,
     completedAt: nowIso,
-    ...(errorMessage ? { errorMessage } : {}),
+    errorMessage,
   });
 
-  // Clear any previous skip reason on success.
+  // Clear any previous skip reason on success. A failed run must not advance
+  // lastCheckedAt — nothing was actually checked.
   // Note: nextCheckAt is NOT set here — the cron handler advances it eagerly
   // before starting the workflow to prevent retry storms.
-  await RankTrackingRepository.updateConfig(input.configId, input.projectId, {
-    lastCheckedAt: nowIso,
-    lastSkipReason: null,
-  });
+  if (status === "completed") {
+    await RankTrackingRepository.updateConfig(input.configId, input.projectId, {
+      lastCheckedAt: nowIso,
+      lastSkipReason: null,
+    });
+  }
 
   // One-line summary per run so fallback rates are visible in Workers Logs.
   // Keys match the PostHog event properties for log/event correlation.
@@ -190,7 +210,7 @@ async function finalizeRankCheckRun(input: {
     ? ` error="${errorMessage.replace(/\s+/g, " ").slice(0, 200)}"`
     : "";
   console.log(
-    `[rank-check] ${input.runId} completed org=${input.billingCustomer.organizationId} project=${input.projectId} trigger=${input.trigger} keywords=${keywordsChecked}/${keywordsTotal}${queueSummary}${errorSummary}`,
+    `[rank-check] ${input.runId} ${status} org=${input.billingCustomer.organizationId} project=${input.projectId} trigger=${input.trigger} keywords=${keywordsChecked}/${keywordsTotal}${queueSummary}${errorSummary}`,
   );
 
   await captureServerEvent({
@@ -199,7 +219,7 @@ async function finalizeRankCheckRun(input: {
     organizationId: input.billingCustomer.organizationId,
     properties: {
       project_id: input.projectId,
-      status: "completed",
+      status,
       trigger: input.trigger,
       keywords_checked: keywordsChecked,
       ...(input.queueStats
@@ -275,9 +295,8 @@ export class RankCheckWorkflow extends WorkflowEntrypoint<
       serpDepth,
       trigger,
       keywordIds,
+      maxCostCredits,
     } = event.payload;
-
-    const client = createDataforseoClient(billingCustomer);
 
     // Guard: skip if config was archived after the workflow was triggered
     const configCheck = await pgStep(
@@ -315,10 +334,12 @@ export class RankCheckWorkflow extends WorkflowEntrypoint<
             serpDepth,
             trigger,
             keywordIds,
+            maxCostCredits,
           }),
       );
 
       const keywords = prepareResult.keywords;
+      const client = createDataforseoClient(billingCustomer);
 
       console.log(`[rank-check] ${runId} loaded ${keywords.length} keywords`);
 

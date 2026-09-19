@@ -1,10 +1,10 @@
-import type { AuthInfo } from "@modelcontextprotocol/sdk/server/auth/types.js";
-import type { ToolExtra } from "@/server/mcp/context";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MCP_AUTH_CONTEXT_PROP } from "@/server/mcp/context";
+import { createProjectTool } from "./create-project";
+import { makeToolContext } from "./tool-test-support";
 
 const mocks = vi.hoisted(() => ({
   createProject: vi.fn(),
+  listMembershipsForUser: vi.fn(),
 }));
 
 vi.mock("@/server/features/projects/services/ProjectService", () => ({
@@ -13,36 +13,16 @@ vi.mock("@/server/features/projects/services/ProjectService", () => ({
   },
 }));
 
-const authContext = {
-  userId: "user_123",
-  userEmail: "alice@example.com",
-  organizationId: "org_123",
-  clientId: "client_123",
-  scopes: ["mcp"],
-  audience: "https://open-seo.test/mcp",
-  subject: "user_123",
-  baseUrl: "https://open-seo.test",
-};
+vi.mock("@/server/auth/repositories/AuthRepository", () => ({
+  AuthRepository: {
+    listMembershipsForUser: mocks.listMembershipsForUser,
+  },
+}));
 
-const toolExtra: ToolExtra = {
-  signal: new AbortController().signal,
-  requestId: 1,
-  sendNotification: vi.fn(),
-  sendRequest: vi.fn(),
-  authInfo: {
-    token: "token",
-    clientId: "client_123",
-    scopes: ["mcp"],
-    resource: new URL("https://open-seo.test/mcp"),
-    extra: { [MCP_AUTH_CONTEXT_PROP]: authContext },
-  } satisfies AuthInfo,
-};
+const toolContext = makeToolContext();
 
 describe("create_project MCP tool", () => {
-  beforeEach(() => {
-    vi.resetModules();
-    mocks.createProject.mockReset();
-  });
+  beforeEach(() => {});
 
   it("creates a project scoped to the caller's organization and returns it", async () => {
     mocks.createProject.mockResolvedValue({
@@ -52,11 +32,10 @@ describe("create_project MCP tool", () => {
       locationCode: 2840,
       languageCode: "en",
     });
-    const { createProjectTool } = await import("./create-project");
 
     const result = await createProjectTool.handler(
       { name: "Acme", domain: "acme.com", locationCode: 2840 },
-      toolExtra,
+      toolContext,
     );
 
     // The schema does not derive languageCode; the service resolves it from
@@ -89,9 +68,8 @@ describe("create_project MCP tool", () => {
       locationCode: 2840,
       languageCode: "en",
     });
-    const { createProjectTool } = await import("./create-project");
 
-    await createProjectTool.handler({ name: "Just a name" }, toolExtra);
+    await createProjectTool.handler({ name: "Just a name" }, toolContext);
 
     expect(mocks.createProject).toHaveBeenCalledWith("org_123", {
       name: "Just a name",
@@ -99,14 +77,113 @@ describe("create_project MCP tool", () => {
   });
 
   it("rejects a languageCode without a locationCode (market pair rule)", async () => {
-    const { createProjectTool } = await import("./create-project");
-
     await expect(
       createProjectTool.handler(
         { name: "Bad market", languageCode: "en" },
-        toolExtra,
+        toolContext,
       ),
-    ).rejects.toThrow();
+    ).rejects.toMatchObject({ code: "VALIDATION_ERROR" });
     expect(mocks.createProject).not.toHaveBeenCalled();
+  });
+
+  it("rejects an unsupported location as a readable validation error", async () => {
+    const call = () =>
+      createProjectTool.handler(
+        { name: "Bad location", locationCode: 999999 },
+        toolContext,
+      );
+
+    await expect(call()).rejects.toMatchObject({ code: "VALIDATION_ERROR" });
+    // The message must name the offending field so the calling agent can
+    // retry with a supported code, not just repeat the bare error code.
+    await expect(call()).rejects.toThrow(
+      "Unsupported DataForSEO location code",
+    );
+    expect(mocks.createProject).not.toHaveBeenCalled();
+  });
+
+  it("rejects a foreign organizationId on a organization-bound (pinned) connection", async () => {
+    await expect(
+      createProjectTool.handler(
+        { name: "Acme", organizationId: "org_other" },
+        toolContext,
+      ),
+    ).rejects.toThrow("bound to a single organization");
+    expect(mocks.createProject).not.toHaveBeenCalled();
+  });
+
+  it("rejects a member role from creating projects", async () => {
+    const memberContext = makeToolContext({ role: "member" });
+
+    await expect(
+      createProjectTool.handler({ name: "Acme" }, memberContext),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    expect(mocks.createProject).not.toHaveBeenCalled();
+  });
+});
+
+// User-scoped credentials (API keys): the target organization must be
+// unambiguous — a single membership resolves implicitly, multiple require an
+// explicit, membership-checked organizationId confirmed with the user.
+describe("create_project with a user-scoped credential", () => {
+  const userScopedContext = makeToolContext({ orgScope: "user" });
+  const memberships = [
+    { organizationId: "org_a", organizationName: "Alpha", role: "owner" },
+    { organizationId: "org_b", organizationName: "Beta", role: "admin" },
+  ];
+
+  beforeEach(() => {
+    mocks.createProject.mockResolvedValue({
+      id: "project_new",
+      name: "Acme",
+      domain: null,
+      locationCode: 2840,
+      languageCode: "en",
+    });
+    mocks.listMembershipsForUser.mockResolvedValue(memberships);
+  });
+
+  it("errors with the organization list when no organizationId is given and the user has several", async () => {
+    await expect(
+      createProjectTool.handler({ name: "Acme" }, userScopedContext),
+    ).rejects.toThrow(/org_a {2}Alpha[\s\S]*org_b {2}Beta/);
+    expect(mocks.createProject).not.toHaveBeenCalled();
+  });
+
+  it("creates in the named organization when the user is a member of it", async () => {
+    const userContext = makeToolContext({ orgScope: "user" });
+    await createProjectTool.handler(
+      { name: "Acme", organizationId: "org_b" },
+      userContext,
+    );
+
+    expect(mocks.createProject).toHaveBeenCalledWith("org_b", {
+      name: "Acme",
+    });
+    // Written back so instrumentation credits the target org.
+    expect(userContext.auth).toMatchObject({
+      organizationId: "org_b",
+      role: "admin",
+    });
+  });
+
+  it("rejects a organizationId the user is not a member of", async () => {
+    await expect(
+      createProjectTool.handler(
+        { name: "Acme", organizationId: "org_stranger" },
+        userScopedContext,
+      ),
+    ).rejects.toThrow("not a member");
+    expect(mocks.createProject).not.toHaveBeenCalled();
+  });
+
+  it("resolves implicitly when the user belongs to exactly one organization", async () => {
+    mocks.listMembershipsForUser.mockResolvedValue([memberships[0]]);
+
+    await createProjectTool.handler({ name: "Acme" }, userScopedContext);
+
+    expect(mocks.createProject).toHaveBeenCalledWith("org_a", {
+      name: "Acme",
+    });
   });
 });

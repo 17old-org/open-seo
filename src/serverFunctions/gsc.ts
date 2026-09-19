@@ -3,8 +3,13 @@ import { getRequest } from "@tanstack/react-start/server";
 import { waitUntil } from "cloudflare:workers";
 import { z } from "zod";
 import { GscService } from "@/server/features/gsc/services/GscService";
-import { hasSelfHostedGscConfig } from "@/server/features/gsc/oauth-config";
-import { createSelfHostedGscAuthorizationUrl } from "@/server/features/gsc/selfHostedOAuth";
+import { hasSelfHostedGoogleOAuthConfig } from "@/server/features/google/oauth-config";
+import {
+  createSelfHostedGoogleAuthorizationUrl,
+  GSC_INTEGRATION,
+} from "@/server/features/google/selfHostedOAuth";
+import { hasOrgPermission } from "@/lib/org-permissions";
+import { requireOrgPermission } from "@/server/auth/org-gate";
 import { captureServerEvent } from "@/server/lib/posthog";
 import { getPublicOrigin } from "@/server/mcp/public-origin";
 import { isHostedServerAuthMode } from "@/server/lib/runtime-env";
@@ -40,10 +45,11 @@ export const getGscConnection = createServerFn({ method: "POST" })
         GscService.getConnection(context.projectId),
         GscService.userHasGrant(context.userId),
         isHostedServerAuthMode(),
-        hasSelfHostedGscConfig(),
+        hasSelfHostedGoogleOAuthConfig(),
       ]);
     return {
       connected: Boolean(connection),
+      canManage: hasOrgPermission(context.role, { integration: ["manage"] }),
       currentUserHasGrant,
       googleOAuthConfigured: hosted || gscConfigured,
       siteUrl: connection?.siteUrl ?? null,
@@ -60,20 +66,25 @@ export const listGscSites = createServerFn({ method: "POST" })
       GscService.listSitesForUserWithGrantStatus(context.userId),
       GscService.getConnection(context.projectId),
     ]);
-    let legacySelectionMatched = false;
+    const legacyAccounts = !connection?.gscAccountId
+      ? siteList.accounts.filter((grant) =>
+          grant.sites.some((site) => site.siteUrl === connection?.siteUrl),
+        )
+      : [];
+    const unambiguousLegacyAccountId =
+      legacyAccounts.length === 1 ? legacyAccounts[0]?.accountId : undefined;
     return {
       accounts: siteList.accounts.map((grant) => ({
         accountId: grant.accountId,
         email: grant.email,
         requiresReconnect: grant.requiresReconnect,
+        propertiesUnavailable: grant.propertiesUnavailable,
         sites: grant.sites.map((site) => {
           const isSelected = connection?.gscAccountId
             ? connection.gscAccountId === grant.accountId &&
               connection.siteUrl === site.siteUrl
-            : !legacySelectionMatched && connection?.siteUrl === site.siteUrl;
-          if (!connection?.gscAccountId && isSelected) {
-            legacySelectionMatched = true;
-          }
+            : unambiguousLegacyAccountId === grant.accountId &&
+              connection?.siteUrl === site.siteUrl;
           return {
             siteUrl: site.siteUrl,
             permissionLevel: site.permissionLevel,
@@ -89,6 +100,7 @@ export const setGscSite = createServerFn({ method: "POST" })
   .middleware(requireProjectContext)
   .validator(setSiteSchema)
   .handler(async ({ data, context }) => {
+    requireOrgPermission(context, { integration: ["manage"] });
     const connection = await GscService.setSite({
       projectId: context.projectId,
       organizationId: context.organizationId,
@@ -104,17 +116,20 @@ export const setGscSite = createServerFn({ method: "POST" })
         properties: { project_id: context.projectId, site_url: data.siteUrl },
       }),
     );
-    return { connected: true as const, siteUrl: connection.siteUrl };
+    return {
+      connected: true as const,
+      siteUrl: connection.siteUrl,
+      connectedByEmail: connection.connectedAccountEmail,
+      connectedAt: connection.createdAt,
+    };
   });
 
 export const disconnectGsc = createServerFn({ method: "POST" })
   .middleware(requireProjectContext)
   .validator(projectScopedSchema)
   .handler(async ({ context }) => {
-    await GscService.disconnect({
-      projectId: context.projectId,
-      userId: context.userId,
-    });
+    requireOrgPermission(context, { integration: ["manage"] });
+    await GscService.disconnect({ projectId: context.projectId });
     waitUntil(
       captureServerEvent({
         distinctId: context.userId,
@@ -131,7 +146,8 @@ export const startSelfHostedGscLink = createServerFn({ method: "POST" })
   .validator(startSelfHostedLinkSchema)
   .handler(async ({ data, context }) => {
     const publicOrigin = getPublicOrigin(getRequest());
-    const url = await createSelfHostedGscAuthorizationUrl({
+    const url = await createSelfHostedGoogleAuthorizationUrl({
+      integration: GSC_INTEGRATION,
       user: {
         userId: context.userId,
         userEmail: context.userEmail,

@@ -1,8 +1,11 @@
+import { ProjectRepository } from "@/server/features/projects/repositories/ProjectRepository";
+import { sort } from "remeda";
 import type { BillingCustomerContext } from "@/server/billing/subscription";
 import { ActivationRepository } from "@/server/features/activation/repositories/ActivationRepository";
 import { AuditRepository } from "@/server/features/audit/repositories/AuditRepository";
 import { getIssueTypePageCountsForAudit } from "@/server/features/audit/repositories/auditSummaryQueries";
 import { BacklinkSnapshotRepository } from "@/server/features/dashboard/repositories/BacklinkSnapshotRepository";
+import { Ga4ConnectionRepository } from "@/server/features/ga4/repositories/Ga4ConnectionRepository";
 import { GscConnectionRepository } from "@/server/features/gsc/repositories/GscConnectionRepository";
 import { RankTrackingRepository } from "@/server/features/rank-tracking/repositories/RankTrackingRepository";
 import { getLatestResults } from "@/server/features/rank-tracking/services/rankTrackingResults";
@@ -10,6 +13,8 @@ import {
   createDataforseoClient,
   normalizeBacklinksTarget,
 } from "@/server/lib/dataforseo";
+import { asAppError } from "@/server/lib/errors";
+import { shouldCaptureAppErrorCode } from "@/shared/error-codes";
 
 // Daily cadence: fresh numbers each visit without per-visit spend; a dormant
 // project costs nothing because refreshes are visit-triggered.
@@ -20,6 +25,11 @@ const MAX_CONFIGS_FOR_OVERVIEW = 5;
 
 export type DashboardActivation = {
   domain: string | null;
+  ga4: {
+    connected: boolean;
+    propertyDisplayName: string | null;
+    cardDismissedAt: string | null;
+  };
   gsc: { connected: boolean; siteUrl: string | null };
   mcp: {
     authorizedAt: string | null;
@@ -27,6 +37,9 @@ export type DashboardActivation = {
     cardDismissedAt: string | null;
   };
   competitorClickedAt: string | null;
+  hasMultipleProjects: boolean;
+  hasTeammate: boolean;
+  dismissedSteps: string[];
 };
 
 type DashboardRankSummary = {
@@ -70,18 +83,39 @@ type DashboardOverview = {
 };
 
 async function getActivation(input: {
+  userId: string;
   projectId: string;
   organizationId: string;
   domain: string | null;
 }): Promise<DashboardActivation> {
-  const [gsc, orgActivation, projectActivation] = await Promise.all([
+  const [
+    ga4,
+    gsc,
+    orgActivation,
+    projectActivation,
+    projectCount,
+    hasTeammate,
+    dismissed,
+  ] = await Promise.all([
+    Ga4ConnectionRepository.getByProjectId(input.projectId),
     GscConnectionRepository.getByProjectId(input.projectId),
     ActivationRepository.getOrganizationActivation(input.organizationId),
     ActivationRepository.getProjectActivation(input.projectId),
+    ProjectRepository.countProjects(input.organizationId),
+    ActivationRepository.hasTeammate(input.organizationId),
+    ActivationRepository.getDismissedSteps(input.userId, input.projectId),
   ]);
 
   return {
     domain: input.domain,
+    hasMultipleProjects: projectCount > 1,
+    hasTeammate,
+    dismissedSteps: dismissed.map((row) => row.step),
+    ga4: {
+      connected: ga4 !== null,
+      propertyDisplayName: ga4?.propertyDisplayName ?? null,
+      cardDismissedAt: projectActivation?.ga4CardDismissedAt ?? null,
+    },
     gsc: { connected: gsc !== null, siteUrl: gsc?.siteUrl ?? null },
     mcp: {
       authorizedAt: orgActivation?.firstMcpAuthorizedAt ?? null,
@@ -127,7 +161,7 @@ async function getRankSummary(
   for (const result of results) {
     summary.trackedKeywords += result.rows.length;
     if (
-      result.run &&
+      result.run?.lastCheckedAt &&
       (!summary.lastCheckedAt ||
         result.run.lastCheckedAt > summary.lastCheckedAt)
     ) {
@@ -157,17 +191,15 @@ async function getAuditSummary(
   const typeRows = await getIssueTypePageCountsForAudit(audit.id);
 
   const severityRank = { critical: 0, warning: 1, info: 2 };
-  const sorted = typeRows
-    .map((row) => ({
+  const sorted = sort(
+    typeRows.map((row) => ({
       issueType: row.issueType,
       severity: row.severity,
       count: row.pages,
-    }))
-    .toSorted(
-      (a, b) =>
-        severityRank[a.severity] - severityRank[b.severity] ||
-        b.count - a.count,
-    );
+    })),
+    (a, b) =>
+      severityRank[a.severity] - severityRank[b.severity] || b.count - a.count,
+  );
 
   return {
     status: audit.status,
@@ -231,12 +263,14 @@ async function ensureBacklinkSnapshot(input: {
     return getBacklinkSummary(projectId, domain);
   }
 
-  const normalized = normalizeBacklinksTarget(domain, { scope: "domain" });
+  // Dashboard totals cover the whole site, subdomains included.
+  const normalized = normalizeBacklinksTarget(domain, { scope: "subdomains" });
   const dataforseo = createDataforseoClient(input.billingCustomer);
 
   try {
     const summary = await dataforseo.backlinks.summary({
       target: normalized.apiTarget,
+      includeSubdomains: normalized.includeSubdomains,
     });
     await BacklinkSnapshotRepository.insert({
       projectId,
@@ -256,17 +290,31 @@ async function ensureBacklinkSnapshot(input: {
       capturedAt: new Date().toISOString(),
     });
   } catch (error) {
-    if (latestMatchesDomain) {
-      console.error("dashboard: backlink snapshot refresh failed", error);
-      return getBacklinkSummary(projectId, domain);
+    if (!latestMatchesDomain) throw error;
+    // Visit-triggered refresh, so an out-of-credits org re-hits this on every
+    // dashboard load. Expected refusals are not failures: log them at info with
+    // the code, and keep error for anything the taxonomy says is reportable.
+    const code = asAppError(error)?.code;
+    if (shouldCaptureAppErrorCode(code)) {
+      console.error(
+        "dashboard: backlink snapshot refresh failed",
+        { projectId },
+        error,
+      );
+    } else {
+      console.info("dashboard: backlink snapshot refresh skipped", {
+        projectId,
+        code,
+      });
     }
-    throw error;
+    return getBacklinkSummary(projectId, domain);
   }
 
   return getBacklinkSummary(projectId, domain);
 }
 
 export const DashboardService = {
+  setStepDismissed: ActivationRepository.setStepDismissed,
   getActivation,
   getOverview,
   ensureBacklinkSnapshot,

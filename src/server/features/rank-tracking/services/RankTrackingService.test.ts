@@ -1,13 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { MAX_CONFIGS_PER_PROJECT } from "@/shared/rank-tracking";
+import { RankTrackingService } from "./RankTrackingService";
 
 const mocks = vi.hoisted(() => ({
   getConfigByProjectDomainLocation: vi.fn(),
+  getConfigById: vi.fn(),
   getConfigsForProject: vi.fn(),
   createConfig: vi.fn(),
   updateConfig: vi.fn(),
 }));
 
 vi.mock("cloudflare:workers", () => ({ env: {} }));
+vi.mock("@/server/lib/runtime-env", () => ({
+  getRequiredEnvValue: () => Promise.resolve("basic-key"),
+  isHostedServerAuthMode: () => Promise.resolve(false),
+}));
 vi.mock("@/server/lib/dataforseo", () => ({ createDataforseoClient: vi.fn() }));
 vi.mock(
   "@/server/features/rank-tracking/repositories/RankTrackingRepository",
@@ -38,20 +45,47 @@ const baseInput = {
   scheduleInterval: "daily" as const,
 };
 
+/** The DataForSEO sandbox reply the location validator parses. */
+function stubSandbox(statusCode: number, statusMessage = "Ok.") {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          tasks: [{ status_code: statusCode, status_message: statusMessage }],
+        }),
+        { status: 200 },
+      ),
+    ),
+  );
+}
+
 describe("RankTrackingService.createConfig", () => {
   beforeEach(() => {
-    vi.resetModules();
-    for (const mock of Object.values(mocks)) mock.mockReset();
+    stubSandbox(20000);
   });
 
   it("reactivates an archived config instead of throwing, applying the new settings", async () => {
     mocks.getConfigByProjectDomainLocation.mockResolvedValue(archivedConfig);
     mocks.getConfigsForProject.mockResolvedValue([]);
     mocks.updateConfig.mockResolvedValue(undefined);
-    const { RankTrackingService } = await import("./RankTrackingService");
+    mocks.getConfigById.mockResolvedValue({
+      ...archivedConfig,
+      languageCode: "es",
+      devices: "desktop",
+      serpDepth: 40,
+      scheduleInterval: "daily",
+      isActive: true,
+      lastSkipReason: null,
+    });
 
-    await expect(RankTrackingService.createConfig(baseInput)).resolves.toEqual({
-      configId: "config_archived",
+    await expect(
+      RankTrackingService.createConfig(baseInput),
+    ).resolves.toMatchObject({
+      id: "config_archived",
+      isActive: true,
+      languageCode: "es",
+      devices: "desktop",
     });
 
     expect(mocks.updateConfig).toHaveBeenCalledTimes(1);
@@ -76,7 +110,6 @@ describe("RankTrackingService.createConfig", () => {
       ...archivedConfig,
       isActive: true,
     });
-    const { RankTrackingService } = await import("./RankTrackingService");
 
     await expect(
       RankTrackingService.createConfig(baseInput),
@@ -89,7 +122,6 @@ describe("RankTrackingService.createConfig", () => {
     mocks.getConfigByProjectDomainLocation.mockResolvedValue(null);
     mocks.getConfigsForProject.mockResolvedValue([]);
     mocks.createConfig.mockResolvedValue(undefined);
-    const { RankTrackingService } = await import("./RankTrackingService");
 
     // Local config: the lookup must be scoped to this exact city, so an
     // existing national row for the same domain doesn't collide.
@@ -115,7 +147,6 @@ describe("RankTrackingService.createConfig", () => {
   });
 
   it("rejects reactivating an archived config when the project is at the active-config cap", async () => {
-    const { MAX_CONFIGS_PER_PROJECT } = await import("@/shared/rank-tracking");
     mocks.getConfigByProjectDomainLocation.mockResolvedValue(archivedConfig);
     mocks.getConfigsForProject.mockResolvedValue(
       Array.from({ length: MAX_CONFIGS_PER_PROJECT }, (_, i) => ({
@@ -124,7 +155,6 @@ describe("RankTrackingService.createConfig", () => {
         isActive: true,
       })),
     );
-    const { RankTrackingService } = await import("./RankTrackingService");
 
     await expect(
       RankTrackingService.createConfig(baseInput),
@@ -137,16 +167,15 @@ describe("RankTrackingService.createConfig", () => {
     mocks.getConfigByProjectDomainLocation.mockResolvedValue(null);
     mocks.getConfigsForProject.mockResolvedValue([]);
     mocks.createConfig.mockResolvedValue(undefined);
-    const { RankTrackingService } = await import("./RankTrackingService");
 
     const result = await RankTrackingService.createConfig(baseInput);
 
-    expect(result.configId).toBeTruthy();
+    expect(result.id).toBeTruthy();
     expect(mocks.createConfig).toHaveBeenCalledTimes(1);
     expect(mocks.updateConfig).not.toHaveBeenCalled();
     expect(mocks.createConfig).toHaveBeenCalledWith(
       expect.objectContaining({
-        id: result.configId,
+        id: result.id,
         projectId: "project_1",
         domain: "acme.com",
         devices: "desktop",
@@ -160,7 +189,6 @@ describe("RankTrackingService.createConfig", () => {
     mocks.getConfigByProjectDomainLocation.mockResolvedValue(null);
     mocks.getConfigsForProject.mockResolvedValue([]);
     mocks.createConfig.mockResolvedValue(undefined);
-    const { RankTrackingService } = await import("./RankTrackingService");
 
     await RankTrackingService.createConfig({
       projectId: "project_1",
@@ -178,7 +206,6 @@ describe("RankTrackingService.createConfig", () => {
     mocks.getConfigByProjectDomainLocation.mockResolvedValue(null);
     mocks.getConfigsForProject.mockResolvedValue([]);
     mocks.createConfig.mockResolvedValue(undefined);
-    const { RankTrackingService } = await import("./RankTrackingService");
 
     await RankTrackingService.createConfig({
       projectId: "project_1",
@@ -191,5 +218,20 @@ describe("RankTrackingService.createConfig", () => {
     expect(mocks.createConfig).toHaveBeenCalledWith(
       expect.objectContaining({ locationCode: 2276, languageCode: "de" }),
     );
+  });
+
+  it("rejects a locationName the sandbox refuses, pointing at search_serp_locations", async () => {
+    stubSandbox(40501, "Invalid Field: 'location_name'.");
+    mocks.getConfigByProjectDomainLocation.mockResolvedValue(null);
+    mocks.getConfigsForProject.mockResolvedValue([]);
+
+    const error = await RankTrackingService.createConfig({
+      ...baseInput,
+      locationName: "Catonsville, MD",
+    }).catch((thrown: unknown) => thrown);
+
+    expect(error).toMatchObject({ code: "VALIDATION_ERROR" });
+    expect(String(error)).toContain("search_serp_locations");
+    expect(mocks.createConfig).not.toHaveBeenCalled();
   });
 });
