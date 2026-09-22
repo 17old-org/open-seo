@@ -1,12 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockEnv, findFirstMock, resolveSharedWorkspaceContextMock } = vi.hoisted(
-  () => ({
+const { mockEnv, findFirstMock, resolveSharedWorkspaceContextMock } =
+  vi.hoisted(() => ({
     mockEnv: {} as Record<string, string | undefined>,
     findFirstMock: vi.fn(),
     resolveSharedWorkspaceContextMock: vi.fn(),
-  }),
-);
+  }));
 
 vi.mock("cloudflare:workers", () => ({ env: mockEnv }));
 
@@ -67,7 +66,9 @@ describe("readPresentedSelfHostMcpToken", () => {
 describe("resolveSelfHostMcpTokenContext", () => {
   it("falls through when the request carries no secret of ours", async () => {
     mockEnv.SELFHOST_MCP_TOKEN = VALID_TOKEN;
-    await expect(resolveSelfHostMcpTokenContext(headers({}))).resolves.toBeNull();
+    await expect(
+      resolveSelfHostMcpTokenContext(headers({})),
+    ).resolves.toBeNull();
   });
 
   it("falls through when the feature is not configured", async () => {
@@ -80,7 +81,9 @@ describe("resolveSelfHostMcpTokenContext", () => {
     mockEnv.SELFHOST_MCP_TOKEN = VALID_TOKEN;
     await expect(
       resolveSelfHostMcpTokenContext(
-        headers({ "x-api-key": `${SELFHOST_MCP_TOKEN_PREFIX}${"b".repeat(48)}` }),
+        headers({
+          "x-api-key": `${SELFHOST_MCP_TOKEN_PREFIX}${"b".repeat(48)}`,
+        }),
       ),
     ).resolves.toBeNull();
   });
