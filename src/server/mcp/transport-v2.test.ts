@@ -33,6 +33,7 @@ vi.mock("@/middleware/ensure-user/delegated", () => ({
 // no secret presented, so these cases exercise the Cloudflare Access path.
 vi.mock("@/server/mcp/selfhost-token-auth", () => ({
   resolveSelfHostMcpTokenContext: vi.fn(async () => null),
+  isSelfHostMcpTokenConfigured: vi.fn(() => false),
 }));
 
 vi.mock("@/server/mcp/server", async () => {

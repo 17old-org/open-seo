@@ -61,6 +61,11 @@ export function readPresentedSelfHostMcpToken(headers: Headers): string | null {
   return null;
 }
 
+/** Whether this deployment accepts a shared secret on /mcp at all. */
+export function isSelfHostMcpTokenConfigured(): boolean {
+  return Boolean(env.SELFHOST_MCP_TOKEN?.trim());
+}
+
 /**
  * Identity for a request authenticated by the shared secret, or null to let
  * the caller fall through to Cloudflare Access.
