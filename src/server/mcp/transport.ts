@@ -19,6 +19,11 @@ import {
   type McpProps,
 } from "@/server/mcp/context";
 import { getPublicOrigin } from "@/server/mcp/public-origin";
+import {
+  isSelfHostMcpTokenConfigured,
+  resolveSelfHostMcpTokenContext,
+} from "@/server/mcp/selfhost-token-auth";
+import type { EnsuredUserContext } from "@/middleware/ensure-user/types";
 import { createOpenSeoMcpServer } from "@/server/mcp/server";
 import { AuthRepository } from "@/server/auth/repositories/AuthRepository";
 import { resolveExistingActiveHostedOrganization } from "@/server/auth/default-hosted-organization";
@@ -231,6 +236,49 @@ export async function handleAuthenticatedOpenSeoMcpRequest(
   ])(request, env, ctx);
 }
 
+// Identity for a self-hosted /mcp request, or the response to send instead.
+//
+// The fork-local shared secret is tried first so a non-interactive client can
+// skip Cloudflare Access's 15-minute OAuth token entirely; a request without
+// it falls through to Access JWT verification exactly as before.
+async function resolveSelfHostedIdentity(
+  request: Request,
+  authMode: "cloudflare_access" | "local_noauth",
+): Promise<EnsuredUserContext | Response> {
+  if (authMode === "local_noauth") return resolveLocalNoAuthContext();
+
+  const bySecret = await resolveSelfHostMcpTokenContext(request.headers);
+  if (bySecret) return bySecret;
+
+  // Accepting the secret requires an Access bypass in front of /mcp, so
+  // unauthenticated probes now reach the worker instead of stopping at
+  // Access. Answer them like an auth server: resolveCloudflareAccessContext
+  // would throw over the missing assertion header, and an uncaught throw
+  // renders as a Cloudflare 1101 with no WWW-Authenticate for the client.
+  if (
+    isSelfHostMcpTokenConfigured() &&
+    !request.headers.get("cf-access-jwt-assertion")
+  ) {
+    return withMcpCors(
+      new Response(
+        JSON.stringify({
+          error: "invalid_token",
+          error_description: "Missing or invalid MCP credential",
+        }),
+        {
+          status: 401,
+          headers: {
+            "Content-Type": "application/json",
+            "WWW-Authenticate": 'Bearer realm="OpenSEO MCP"',
+          },
+        },
+      ),
+    );
+  }
+
+  return resolveCloudflareAccessContext(request.headers);
+}
+
 export async function handleSelfHostedOpenSeoMcpRequest(
   request: Request,
   authMode: "cloudflare_access" | "local_noauth",
@@ -242,10 +290,8 @@ export async function handleSelfHostedOpenSeoMcpRequest(
     return new Response(null, { headers: MCP_CORS_HEADERS });
   }
 
-  const identity =
-    authMode === "local_noauth"
-      ? await resolveLocalNoAuthContext()
-      : await resolveCloudflareAccessContext(request.headers);
+  const identity = await resolveSelfHostedIdentity(request, authMode);
+  if (identity instanceof Response) return identity;
   const props = createWorkersOAuthMcpProps({
     userId: identity.userId,
     userEmail: identity.userEmail,

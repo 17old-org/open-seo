@@ -252,6 +252,9 @@ const resolveSelfHostAccess = (
         applicationName: `open-seo ${stage}`,
         domain: customDomain || `${workerName(stage)}.${subdomain}`,
         emails: allowedEmails,
+        // 30 days, Cloudflare's maximum. The default 24h means re-running the
+        // browser login every day for what is a single-operator deployment.
+        sessionDuration: "720h",
       });
       policyAud = application.aud;
     }
@@ -271,6 +274,8 @@ const dataEnv = {
   BETTER_AUTH_SECRET: optionalSecret("BETTER_AUTH_SECRET"),
   GOOGLE_CLIENT_ID: optionalVar("GOOGLE_CLIENT_ID"),
   GOOGLE_CLIENT_SECRET: optionalSecret("GOOGLE_CLIENT_SECRET"),
+  SELFHOST_MCP_TOKEN: optionalSecret("SELFHOST_MCP_TOKEN"),
+  SELFHOST_MCP_USER_EMAIL: optionalVar("SELFHOST_MCP_USER_EMAIL"),
   OPENROUTER_API_KEY: optionalSecret("OPENROUTER_API_KEY"),
   OPENROUTER_MODEL: optionalVar("OPENROUTER_MODEL"),
   AUTUMN_SECRET_KEY: optionalSecret("AUTUMN_SECRET_KEY"),

@@ -65,6 +65,10 @@ export const emailAccessGate = (options: {
   applicationName: string;
   domain: string;
   emails: string[];
+  // Go-style duration; Cloudflare's default is "24h". Alchemy reconciles the
+  // application on every deploy, so this is the only place the value survives
+  // — a dashboard edit is overwritten by the next `deploy:selfhost`.
+  sessionDuration?: string;
 }) =>
   Effect.gen(function* () {
     const allow = yield* Cloudflare.Access.Policy(options.policyId, {
@@ -77,5 +81,8 @@ export const emailAccessGate = (options: {
       name: options.applicationName,
       domain: options.domain,
       policies: [allow.policyId],
+      ...(options.sessionDuration
+        ? { sessionDuration: options.sessionDuration }
+        : {}),
     });
   });
