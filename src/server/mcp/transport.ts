@@ -19,6 +19,7 @@ import {
   type McpProps,
 } from "@/server/mcp/context";
 import { getPublicOrigin } from "@/server/mcp/public-origin";
+import { resolveSelfHostMcpTokenContext } from "@/server/mcp/selfhost-token-auth";
 import { createOpenSeoMcpServer } from "@/server/mcp/server";
 import { AuthRepository } from "@/server/auth/repositories/AuthRepository";
 import { resolveExistingActiveHostedOrganization } from "@/server/auth/default-hosted-organization";
@@ -242,10 +243,14 @@ export async function handleSelfHostedOpenSeoMcpRequest(
     return new Response(null, { headers: MCP_CORS_HEADERS });
   }
 
+  // The shared secret (fork-local) comes first so a non-interactive client can
+  // skip Cloudflare Access's 15-minute OAuth token entirely; a request without
+  // it falls through to Access JWT verification exactly as before.
   const identity =
     authMode === "local_noauth"
       ? await resolveLocalNoAuthContext()
-      : await resolveCloudflareAccessContext(request.headers);
+      : ((await resolveSelfHostMcpTokenContext(request.headers)) ??
+        (await resolveCloudflareAccessContext(request.headers)));
   const props = createWorkersOAuthMcpProps({
     userId: identity.userId,
     userEmail: identity.userEmail,

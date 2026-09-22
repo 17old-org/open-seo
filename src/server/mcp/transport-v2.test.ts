@@ -29,6 +29,12 @@ vi.mock("@/middleware/ensure-user/delegated", () => ({
   resolveLocalNoAuthContext: vi.fn(),
 }));
 
+// Fork-local shared-secret path (server/mcp/selfhost-token-auth.ts). Null =
+// no secret presented, so these cases exercise the Cloudflare Access path.
+vi.mock("@/server/mcp/selfhost-token-auth", () => ({
+  resolveSelfHostMcpTokenContext: vi.fn(async () => null),
+}));
+
 vi.mock("@/server/mcp/server", async () => {
   const { McpServer: ActualMcpServer } =
     await import("@modelcontextprotocol/server");

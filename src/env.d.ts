@@ -25,6 +25,12 @@ declare namespace Cloudflare {
     BYPASS_EMAIL_VERIFICATION?: string;
     TEAM_DOMAIN?: string;
     POLICY_AUD?: string;
+    // Fork-local: long-lived shared secret accepted on /mcp instead of a
+    // Cloudflare Access OAuth token, and the Access email whose workspace and
+    // Search Console grant that secret acts as. See
+    // server/mcp/selfhost-token-auth.ts.
+    SELFHOST_MCP_TOKEN?: string;
+    SELFHOST_MCP_USER_EMAIL?: string;
     POSTHOG_PUBLIC_KEY?: string;
     POSTHOG_HOST?: string;
     BETTER_AUTH_SECRET?: string;
