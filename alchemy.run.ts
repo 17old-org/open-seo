@@ -252,6 +252,9 @@ const resolveSelfHostAccess = (
         applicationName: `open-seo ${stage}`,
         domain: customDomain || `${workerName(stage)}.${subdomain}`,
         emails: allowedEmails,
+        // 30 days, Cloudflare's maximum. The default 24h means re-running the
+        // browser login every day for what is a single-operator deployment.
+        sessionDuration: "720h",
       });
       policyAud = application.aud;
     }
